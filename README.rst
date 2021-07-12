@@ -1,5 +1,3 @@
-THIS IS GOING TO BE MOVED TO THE `INDI github`_. DO NOT USE ANY MORE.
-
 pyindi-client
 =============
 
