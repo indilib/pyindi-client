@@ -12,9 +12,3 @@ RUN pip3 install -U pip
 COPY . .
 RUN python3 setup.py install
 RUN pip3 install -r requirements-test.txt
-
-# starting up indi server
-RUN indiserver indi_simulator_ccd indi_simulator_focus indi_simulator_telescope &
-
-# running tests
-RUN tox .
