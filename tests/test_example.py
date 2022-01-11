@@ -48,12 +48,6 @@ def client():
     yield client
     client.disconnectServer()
 
+
 def test_connect(client):
-    assert(client.isServerConnected())
-
-def test_connect_device(client):
-    telescope = "Telescope Simulator"
-    device_telescope = client.getDevice(telescope)
-    # assert(device_telescope.isConnected())
-
-
+    assert client.isServerConnected()
