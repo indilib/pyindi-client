@@ -1,4 +1,5 @@
 import PyIndi
+import pytest
 
 
 class IndiClient(PyIndi.BaseClient):
@@ -39,9 +40,14 @@ class IndiClient(PyIndi.BaseClient):
         pass
 
 
-indiclient = IndiClient()
-indiclient.setServer("localhost", 7624)
+@pytest.fixture(scope="function")
+def client():
+    client = IndiClient()
+    client.setServer("localhost", 7624)
+    client.connectServer()
+    yield client
+    client.disconnectServer()
 
-indiclient.connectServer()
-while 1:
-    pass
+
+def test_connect(client):
+    assert client.isServerConnected()
