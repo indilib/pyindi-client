@@ -1,7 +1,8 @@
 FROM ubuntu:latest
 
-WORKDIR pyindi
+WORKDIR /pyindi-client
 
+#install latest indi libs
 RUN apt-get update -y
 RUN apt-get install software-properties-common -y
 RUN apt-add-repository -y ppa:mutlaqja/ppa
@@ -9,6 +10,10 @@ RUN apt-get -y install build-essential cmake git libstellarsolver-dev libeigen3-
 RUN apt-get install python3 python3-dev python3-pip swig -y
 RUN pip3 install -U pip
 
+#install pyindi-client package
 COPY . .
 RUN python3 setup.py install
 RUN pip3 install -r requirements-test.txt
+
+#start indiserver & run tests
+CMD /bin/bash -c "indiserver indi_simulator_ccd indi_simulator_telescope & tox ."
