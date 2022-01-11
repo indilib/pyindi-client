@@ -40,7 +40,7 @@ class IndiClient(PyIndi.BaseClient):
         pass
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture()
 def client():
     client = IndiClient()
     client.setServer("localhost", 7624)
@@ -51,3 +51,8 @@ def client():
 
 def test_connect(client):
     assert client.isServerConnected()
+
+
+def test_list_devices(client):
+    dl = client.getDevices()
+    print(dl)

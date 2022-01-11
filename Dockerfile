@@ -11,9 +11,13 @@ RUN apt-get install python3 python3-dev python3-pip swig -y
 RUN pip3 install -U pip
 
 #install pyindi-client package
-COPY . .
+COPY indiclientpython.i .
+COPY setup.py .
+COPY setup.cfg .
 RUN python3 setup.py install
-RUN pip3 install -r requirements-test.txt
 
 #start indiserver & run tests
-CMD /bin/bash -c "indiserver indi_simulator_ccd indi_simulator_telescope & tox ."
+COPY requirements-test.txt .
+RUN pip3 install -r requirements-test.txt
+COPY . .
+CMD /bin/bash -c "indiserver indi_simulator_ccd indi_simulator_focus indi_simulator_gps indi_simulator_guide indi_simulator_wheel indi_simulator_telescope & tox ."
