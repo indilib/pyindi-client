@@ -1,5 +1,6 @@
 import PyIndi
 import pytest
+import time
 
 
 class IndiClient(PyIndi.BaseClient):
@@ -45,8 +46,13 @@ def client():
     client = IndiClient()
     client.setServer("localhost", 7624)
     client.connectServer()
+
+    for _ in range(15):
+        if client.isServerConnected() and len(client.getDevices()) > 0:
+            break
+        time.sleep(1)
+
     yield client
-    client.disconnectServer()
 
 
 def test_connect(client):
@@ -54,5 +60,17 @@ def test_connect(client):
 
 
 def test_list_devices(client):
-    dl = client.getDevices()
-    print(dl)
+    device_names = [x.getDeviceName() for x in client.getDevices()]
+    expected_device_names = [
+        "Telescope Simulator",
+        "Filter Simulator",
+        "Guide Simulator",
+        "GPS Simulator",
+        "Focuser Simulator",
+        "CCD Simulator",
+    ]
+    assert set(device_names) == set(expected_device_names)
+
+
+def test_one(client):
+    pass
