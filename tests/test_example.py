@@ -72,5 +72,18 @@ def test_list_devices(client):
     assert set(device_names) == set(expected_device_names)
 
 
-def test_one(client):
-    pass
+def test_getting_properties(client):
+    for d in client.getDevices():
+        for prop in d.getProperties():
+            prop_name = prop.getName()
+            prop_type = prop.getType()
+            if prop_type == PyIndi.INDI_TEXT:
+                prop_text = prop.getText()
+            elif prop_type == PyIndi.INDI_NUMBER:
+                prop_number = prop.getNumber()
+            elif prop_type == PyIndi.INDI_SWITCH:
+                prop_switch = prop.getSwitch()
+            elif prop_type == PyIndi.INDI_LIGHT:
+                prop_light = prop.getLight()
+            elif prop_type == PyIndi.INDI_BLOB:
+                prop_blob = prop.getBLOB()
