@@ -11,8 +11,9 @@ RUN apt-get install -y  git  cdbs  dkms  cmake  fxload  libgps-dev  libgsl-dev  
 RUN apt-get install python3 python3-dev python3-pip swig -y
 RUN pip3 install -U pip
 
-#build and install indi
-RUN git clone -b v1.9.3 --depth 1 https://github.com/indilib/indi.git
+#build and install indi latest tagged release on master
+RUN git clone https://github.com/indilib/indi.git
+RUN cd indi && git checkout `git describe --tags \`git rev-list --tags --max-count=1\``
 RUN mkdir indi/build && cd indi/build && cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Debug .. && make -j4 && make install
 
 #install pyindi-client package
