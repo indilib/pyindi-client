@@ -2,13 +2,18 @@ FROM ubuntu:latest
 
 WORKDIR /pyindi-client
 
-#install latest indi libs
+ENV DEBIAN_FRONTEND="noninteractive" TZ=Etc/UTC
+
+#install indi libs from git
 RUN apt-get update -y
-RUN apt-get install software-properties-common -y
-RUN apt-add-repository -y ppa:mutlaqja/ppa
-RUN apt-get -y install build-essential cmake git libstellarsolver-dev libeigen3-dev libcfitsio-dev zlib1g-dev libindi-dev extra-cmake-modules libkf5plotting-dev libqt5svg5-dev libkf5xmlgui-dev libkf5kio-dev kinit-dev libkf5newstuff-dev kdoctools-dev libkf5doctools-dev libkf5notifications-dev qtdeclarative5-dev libkf5crash-dev gettext libnova-dev libgsl-dev libraw-dev libkf5notifyconfig-dev wcslib-dev libqt5websockets5-dev xplanet xplanet-images qt5keychain-dev libsecret-1-dev breeze-icon-theme
+RUN apt-get install -y  git  cdbs  dkms  cmake  fxload  libgps-dev  libgsl-dev  libraw-dev  libusb-dev  zlib1g-dev  libftdi-dev  libgsl0-dev  libjpeg-dev  libkrb5-dev  libnova-dev  libtiff-dev  libfftw3-dev  librtlsdr-dev  libcfitsio-dev  libgphoto2-dev  build-essential  libusb-1.0-0-dev  libdc1394-22-dev  libboost-regex-dev  libcurl4-gnutls-dev
+
 RUN apt-get install python3 python3-dev python3-pip swig -y
 RUN pip3 install -U pip
+
+#build and install indi
+RUN git clone -b v1.9.3 --depth 1 https://github.com/indilib/indi.git
+RUN mkdir indi/build && cd indi/build && cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Debug .. && make -j4 && make install
 
 #install pyindi-client package
 COPY indiclientpython.i .
