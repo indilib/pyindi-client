@@ -25,4 +25,5 @@ RUN python3 setup.py install
 COPY requirements-test.txt .
 RUN pip3 install -r requirements-test.txt
 COPY . .
+RUN rm -rf .tox
 CMD /bin/bash -c "indiserver indi_simulator_ccd indi_simulator_focus indi_simulator_gps indi_simulator_guide indi_simulator_wheel indi_simulator_telescope & tox ."
