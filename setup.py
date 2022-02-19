@@ -34,6 +34,7 @@ libindisearchpaths = [
     "/usr/lib64",
     "/lib",
     "/lib64",
+    "/usr/local/lib/" + march,
     "/usr/local/lib",
 ]
 
