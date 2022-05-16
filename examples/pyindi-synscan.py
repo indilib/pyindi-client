@@ -79,31 +79,53 @@ class IndiClient(PyIndi.BaseClient):
         )
 
 
+numberFailures = set()
+switchFailures = set()
+textFailures = set()
+
 def getNumberWithRetry(prop, ntry=5, delay=0.2):
     while ntry > 0:
         p = device.getNumber(prop)
         if type(p) == PyIndi.PropertyViewNumber:
+            numberFailures.discard(prop)
             return p
+        if prop in numberFailures:
+            return None
+        logger.info("Unable to get number property "+prop+", retrying")
         ntry -= 1
         time.sleep(delay)
+    logger.info("Unable to get number property "+prop+", marking as failed")
+    numberFailures.add(prop)
     return None
 
 def getSwitchWithRetry(prop, ntry=5, delay=0.2):
     while ntry > 0:
         p = device.getSwitch(prop)
         if type(p) == PyIndi.PropertyViewSwitch:
+            switchFailures.discard(prop)
             return p
+        if prop in switchFailures:
+            return None
+        logger.info("Unable to get switch property "+prop+", retrying")
         ntry -= 1
         time.sleep(delay)
+    logger.info("Unable to get switch property "+prop+", marking as failed")
+    switchFailures.add(prop)
     return None
 
 def getTextWithRetry(prop, ntry=5, delay=0.2):
     while ntry > 0:
         p = device.getText(prop)
         if type(p) == PyIndi.PropertyViewText:
+            textFailures.discard(prop)
             return p
+        if prop in textFailures:
+            return None
+        logger.info("Unable to get text property "+prop+", retrying")
         ntry -= 1
         time.sleep(delay)
+    logger.info("Unable to get text property "+prop+", marking as failed")
+    textFailures.add(prop)
     return None
 
 def process_command(buf, indiclient, logger):
