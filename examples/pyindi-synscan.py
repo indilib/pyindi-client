@@ -113,8 +113,8 @@ def process_command(buf, indiclient, logger):
         elif buf[i] == ord("e") or buf[i] == ord("E"):
             p = device.getNumber("EQUATORIAL_EOD_COORD")
             while not (p) or type(p) != PyIndi.PropertyViewNumber:
-                p = device.getNumber("EQUATORIAL_EOD_COORD")
                 time.sleep(0.2)
+                p = device.getNumber("EQUATORIAL_EOD_COORD")
             radeg = (p[0].value * 360.0) / 24.0
             decdeg = p[1].value
             if decdeg < 0.0:
@@ -296,14 +296,14 @@ def process_command(buf, indiclient, logger):
                 decdeg = decdeg - 360.0
             p = device.getNumber("EQUATORIAL_EOD_COORD")
             while not (p) or type(p) != PyIndi.PropertyViewNumber:
-                p = device.getNumber("EQUATORIAL_EOD_COORD")
                 time.sleep(0.2)
+                p = device.getNumber("EQUATORIAL_EOD_COORD")
             p[0].value = rahour
             p[1].value = decdeg
             pcs = device.getSwitch("ON_COORD_SET")
             while not (pcs) or type(pcs) != PyIndi.PropertyViewSwitch:
-                pcs = device.getNumber("ON_COORD_SET")
                 time.sleep(0.2)
+                pcs = device.getNumber("ON_COORD_SET")
             if ingoto:
                 pcs[0].setState(PyIndi.ISS_ON)
                 pcs[1].setState(PyIndi.ISS_OFF)
@@ -321,16 +321,16 @@ def process_command(buf, indiclient, logger):
         elif (buf[i] == ord("L")) or (buf[i] == ord("M")):
             p = device.getNumber("EQUATORIAL_EOD_COORD")
             while not (p) or type(p) != PyIndi.PropertyViewNumber:
-                p = device.getNumber("EQUATORIAL_EOD_COORD")
                 time.sleep(0.2)
+                p = device.getNumber("EQUATORIAL_EOD_COORD")
             if p.getState() == PyIndi.IPS_BUSY:
                 if buf[i] == ord("L"):
                     reply += b"1#"
                 else:
                     p = device.getSwitch("TELESCOPE_ABORT_MOTION")
                     while not (p) or type(p) != PyIndi.PropertyViewSwitch:
-                        p = device.getNumber("TELESCOPE_ABORT_MOTION")
                         time.sleep(0.2)
+                        p = device.getNumber("TELESCOPE_ABORT_MOTION")
                     p[0].setState(PyIndi.ISS_ON)
                     indiclient.sendNewSwitch(p)
                     reply += b"#"
@@ -352,8 +352,8 @@ def process_command(buf, indiclient, logger):
                 pmotionname = "TELESCOPE_MOTION_NS"
             pmotion = device.getSwitch(pmotionname)
             while not (pmotion) or type(pmotion) != PyIndi.PropertyViewSwitch:
-                pmotion = device.getSwitch(pmotionname)
                 time.sleep(0.2)
+                pmotion = device.getSwitch(pmotionname)
             rate = buf[i + 4]
             if rate == 0:  # stop
                 pmotion[0].setState(PyIndi.ISS_OFF)
@@ -362,8 +362,8 @@ def process_command(buf, indiclient, logger):
             else:
                 prate = device.getSwitch("TELESCOPE_SLEW_RATE")
                 while not (prate) or type(prate) != PyIndi.PropertyViewSwitch:
-                    prate = device.getSwitch("TELESCOPE_SLEW_RATE")
                     time.sleep(0.2)
+                    prate = device.getSwitch("TELESCOPE_SLEW_RATE")
                 if len(prate) < 1:  # no slew rate
                     reply += reply_error
                     i += 8
@@ -404,8 +404,8 @@ def process_command(buf, indiclient, logger):
         elif buf[i] == ord("p"):
             p = device.getSwitch("TELESCOPE_PIER_SIDE")
             while not (p) or type(p) != PyIndi.PropertyViewSwitch:
-                p = device.getSwitch("TELESCOPE_PIER_SIDE")
                 time.sleep(0.2)
+                p = device.getSwitch("TELESCOPE_PIER_SIDE")
             if p[0].getState() == PyIndi.ISS_ON:  # PIER_EAST
                 reply += b"E#"
             else:
@@ -415,8 +415,8 @@ def process_command(buf, indiclient, logger):
         elif (buf[i] == ord("t")) or (buf[i] == ord("T")):
             p = device.getSwitch("TELESCOPE_TRACK_RATE")
             while not (p) or type(p) != PyIndi.PropertyViewSwitch:
-                p = device.getSwitch("TELESCOPE_TRACK_RATE")
                 time.sleep(0.2)
+                p = device.getSwitch("TELESCOPE_TRACK_RATE")
             if buf[i] == ord("t"):
                 mode = b"0"
                 if (
