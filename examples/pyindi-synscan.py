@@ -203,6 +203,8 @@ def process_command(buf, indiclient, logger):
             latfrac, latb = math.modf(latfrac * 60)
             latfrac, latc = math.modf(latfrac * 60)
             longh = b"\x00"
+            if longdeg > 180.0:
+                longdeg -= 360.0
             if longdeg < 0.0:
                 longh = b"\x01"
                 longdeg = -(longdeg)
