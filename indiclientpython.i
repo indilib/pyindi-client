@@ -7,6 +7,7 @@
 
 
 #include <indiproperty.h>
+#include <indiproperties.h>
 
 #include <indipropertybasic.h>
 #include <indipropertytext.h>
@@ -185,6 +186,26 @@ B_ONLY
     return result;
   }
  };
+
+
+%ignore INDI::Properties::at;
+%ignore INDI::Properties::front;
+%ignore INDI::Properties::back;
+%ignore INDI::Properties::empty;
+
+%include <indiproperties.h>
+
+%extend INDI::Properties {
+  INDI::Property * __getitem__(int index) {
+    if ((unsigned int)index >= $self->size()) throw std::out_of_range("Properties index out of bounds");
+    return &($self->at(index));
+  }
+
+  int __len__() {
+    return $self->size();
+  }
+}
+
 
 %extend INDI::BaseClient {
   %typemap(in) (char *data, long len) {
