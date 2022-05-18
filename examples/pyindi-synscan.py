@@ -119,8 +119,8 @@ def process_command(buf, indiclient, logger):
             decdeg = p[1].value
             if decdeg < 0.0:
                 decdeg = 360.0 + decdeg
-            rahex = hex(int((radeg * 2 ** 24) / 360.0))[2:].zfill(6).upper() + "00"
-            dechex = hex(int((decdeg * 2 ** 24) / 360.0))[2:].zfill(6).upper() + "00"
+            rahex = hex(int((radeg * 2**24) / 360.0))[2:].zfill(6).upper() + "00"
+            dechex = hex(int((decdeg * 2**24) / 360.0))[2:].zfill(6).upper() + "00"
             if sys.version_info >= (3,):
                 rahex = bytes(rahex, "ascii")
                 dechex = bytes(dechex, "ascii")
@@ -283,12 +283,12 @@ def process_command(buf, indiclient, logger):
             if sys.version_info < (3,):
                 sbuf = str(buf)
             if (buf[i] == ord("r")) or (buf[i] == ord("s")):
-                rahour = (int(sbuf[i + 1 : i + 9], 16) * 24.0) / (2 ** 32)
-                decdeg = (int(sbuf[i + 10 : i + 18], 16) * 360.0) / (2 ** 32)
+                rahour = (int(sbuf[i + 1 : i + 9], 16) * 24.0) / (2**32)
+                decdeg = (int(sbuf[i + 10 : i + 18], 16) * 360.0) / (2**32)
                 i += 18
             else:
-                rahour = (int(sbuf[i + 1 : i + 5], 16) * 24.0) / (2 ** 16)
-                decdeg = (int(sbuf[i + 6 : i + 10], 16) * 360.0) / (2 ** 16)
+                rahour = (int(sbuf[i + 1 : i + 5], 16) * 24.0) / (2**16)
+                decdeg = (int(sbuf[i + 6 : i + 10], 16) * 360.0) / (2**16)
                 i += 10
             if decdeg >= 270.0:  # I don't check for 90.0 < values < 270.0
                 decdeg = decdeg - 360.0
