@@ -10,7 +10,7 @@ jobs:
         container: ["ubuntu"]
 
     container:
-      image: ghcr.io/indilib/${{ matrix.container }}
+      image: ubuntu:latest
 
     steps:
       - name: Get INDI Core Package
