@@ -64,13 +64,13 @@ pyindi_module = Extension(
 class CustomBuild(build):
     def run(self):
         self.run_command("build_ext")
-        super().run()
+        build.run(self)
 
 
 class CustomInstall(install):
     def run(self):
         self.run_command("build_ext")
-        super().run()
+        install.run(self)
 
 
 # readme = open(join(root_dir, 'README.rst'))
