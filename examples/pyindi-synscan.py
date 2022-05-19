@@ -83,6 +83,7 @@ numberFailures = set()
 switchFailures = set()
 textFailures = set()
 
+
 def getNumberWithRetry(prop, ntry=5, delay=0.2):
     while ntry > 0:
         p = device.getNumber(prop)
@@ -91,12 +92,13 @@ def getNumberWithRetry(prop, ntry=5, delay=0.2):
             return p
         if prop in numberFailures:
             return None
-        logger.info("Unable to get number property "+prop+", retrying")
+        logger.info("Unable to get number property " + prop + ", retrying")
         ntry -= 1
         time.sleep(delay)
-    logger.info("Unable to get number property "+prop+", marking as failed")
+    logger.info("Unable to get number property " + prop + ", marking as failed")
     numberFailures.add(prop)
     return None
+
 
 def getSwitchWithRetry(prop, ntry=5, delay=0.2):
     while ntry > 0:
@@ -106,12 +108,13 @@ def getSwitchWithRetry(prop, ntry=5, delay=0.2):
             return p
         if prop in switchFailures:
             return None
-        logger.info("Unable to get switch property "+prop+", retrying")
+        logger.info("Unable to get switch property " + prop + ", retrying")
         ntry -= 1
         time.sleep(delay)
-    logger.info("Unable to get switch property "+prop+", marking as failed")
+    logger.info("Unable to get switch property " + prop + ", marking as failed")
     switchFailures.add(prop)
     return None
+
 
 def getTextWithRetry(prop, ntry=5, delay=0.2):
     while ntry > 0:
@@ -121,12 +124,13 @@ def getTextWithRetry(prop, ntry=5, delay=0.2):
             return p
         if prop in textFailures:
             return None
-        logger.info("Unable to get text property "+prop+", retrying")
+        logger.info("Unable to get text property " + prop + ", retrying")
         ntry -= 1
         time.sleep(delay)
-    logger.info("Unable to get text property "+prop+", marking as failed")
+    logger.info("Unable to get text property " + prop + ", marking as failed")
     textFailures.add(prop)
     return None
+
 
 def process_command(buf, indiclient, logger):
     global device
@@ -141,7 +145,7 @@ def process_command(buf, indiclient, logger):
         if cmd == ord(b"\x00"):
             pass
         elif cmd == ord("#"):
-            reply += b'#'
+            reply += b"#"
         # Echo
         elif cmd == ord("K"):
             if not (indiclient.isconnected):
@@ -156,7 +160,7 @@ def process_command(buf, indiclient, logger):
         elif cmd == ord("J"):
             reply += b"\x01" + b"#"
         # Get Ra/Dec
-        elif cmd in [ord('e'), ord('E')]:
+        elif cmd in [ord("e"), ord("E")]:
             p = getNumberWithRetry("EQUATORIAL_EOD_COORD")
             if p is None:
                 reply += reply_error
@@ -208,7 +212,7 @@ def process_command(buf, indiclient, logger):
         elif cmd == ord("m"):
             p = getTextWithRetry("MOUNTINFORMATION")
             if p is None:
-                m = b'!'
+                m = b"!"
             else:
                 skywatcher_models = {
                     "EQ6": b"\x00",
@@ -304,9 +308,9 @@ def process_command(buf, indiclient, logger):
             indiclient.sendNewNumber(p)
             reply += b"#"
         # Goto/Sync
-        elif cmd in [ord('r'), ord('R'), ord('s'), ord('S')]:
-            ingoto = cmd in [ord('r'), ord('R')]
-            if cmd in [ord('r'), ord('s')]:
+        elif cmd in [ord("r"), ord("R"), ord("s"), ord("S")]:
+            ingoto = cmd in [ord("r"), ord("R")]
+            if cmd in [ord("r"), ord("s")]:
                 rahour = (int(buf[i : i + 8], 16) * 24.0) / (2**32)
                 decdeg = (int(buf[i + 9 : i + 17], 16) * 360.0) / (2**32)
                 i += 17
@@ -346,9 +350,9 @@ def process_command(buf, indiclient, logger):
                 reply += reply_error
                 continue
             if p.getState() == PyIndi.IPS_BUSY:
-                reply += b'1#'
+                reply += b"1#"
             else:
-                reply += b'0#'
+                reply += b"0#"
         # abort goto
         elif cmd == ord("M"):
             p = getNumberWithRetry("EQUATORIAL_EOD_COORD")
@@ -362,12 +366,12 @@ def process_command(buf, indiclient, logger):
                     continue
                 p[0].setState(PyIndi.ISS_ON)
                 indiclient.sendNewSwitch(p)
-            reply += b'#'
+            reply += b"#"
         # MoveWE/MoveNS
         elif cmd == ord("P"):
             data = buf[i : i + 7]
             i += 7
-            if data[0] != 2: # variable rate not supported
+            if data[0] != 2:  # variable rate not supported
                 reply += reply_error
                 continue
             if data[1] == 16:
@@ -385,7 +389,7 @@ def process_command(buf, indiclient, logger):
                 indiclient.sendNewSwitch(pmotion)
             else:
                 prate = getSwitchWithRetry("TELESCOPE_SLEW_RATE")
-                if prate is None or len(prate) < 1:   # no slew rate
+                if prate is None or len(prate) < 1:  # no slew rate
                     reply += reply_error
                     continue
                 prateswitches = {
@@ -434,7 +438,7 @@ def process_command(buf, indiclient, logger):
             if p is None:
                 reply += reply_error
                 continue
-            mode=b"0"
+            mode = b"0"
             if any(p[n].getState() == PyIndi.ISS_ON for n in range(4)):
                 mode = b"2"
             reply += mode + b"#"
@@ -446,7 +450,7 @@ def process_command(buf, indiclient, logger):
             if p is None:
                 reply += reply_error
                 continue
-            if mode in [ord('2'), ord('3')]:  # EQ/PEC tracking (no Alt/Az)
+            if mode in [ord("2"), ord("3")]:  # EQ/PEC tracking (no Alt/Az)
                 if p[0].getState() == PyIndi.ISS_OFF:
                     p[0].setState(ON)
                     p[1].setState(OFF)
@@ -460,7 +464,7 @@ def process_command(buf, indiclient, logger):
                     p[2].setState(OFF)
                     p[3].setState(OFF)
                     indiclient.sendNewSwitch(p)
-            reply += b'#'
+            reply += b"#"
         else:  # unknown
             reply += reply_error
             i += 1
