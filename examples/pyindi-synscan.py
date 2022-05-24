@@ -79,6 +79,59 @@ class IndiClient(PyIndi.BaseClient):
         )
 
 
+numberFailures = set()
+switchFailures = set()
+textFailures = set()
+
+
+def getNumberWithRetry(prop, ntry=5, delay=0.2):
+    while ntry > 0:
+        p = device.getNumber(prop)
+        if type(p) == PyIndi.PropertyViewNumber:
+            numberFailures.discard(prop)
+            return p
+        if prop in numberFailures:
+            return None
+        logger.info("Unable to get number property " + prop + ", retrying")
+        ntry -= 1
+        time.sleep(delay)
+    logger.info("Unable to get number property " + prop + ", marking as failed")
+    numberFailures.add(prop)
+    return None
+
+
+def getSwitchWithRetry(prop, ntry=5, delay=0.2):
+    while ntry > 0:
+        p = device.getSwitch(prop)
+        if type(p) == PyIndi.PropertyViewSwitch:
+            switchFailures.discard(prop)
+            return p
+        if prop in switchFailures:
+            return None
+        logger.info("Unable to get switch property " + prop + ", retrying")
+        ntry -= 1
+        time.sleep(delay)
+    logger.info("Unable to get switch property " + prop + ", marking as failed")
+    switchFailures.add(prop)
+    return None
+
+
+def getTextWithRetry(prop, ntry=5, delay=0.2):
+    while ntry > 0:
+        p = device.getText(prop)
+        if type(p) == PyIndi.PropertyViewText:
+            textFailures.discard(prop)
+            return p
+        if prop in textFailures:
+            return None
+        logger.info("Unable to get text property " + prop + ", retrying")
+        ntry -= 1
+        time.sleep(delay)
+    logger.info("Unable to get text property " + prop + ", marking as failed")
+    textFailures.add(prop)
+    return None
+
+
 def process_command(buf, indiclient, logger):
     global device
     # Default error
@@ -86,35 +139,32 @@ def process_command(buf, indiclient, logger):
     i = 0
     reply = b""
     while i < len(buf):
+        cmd = buf[i]
+        i += 1
         # Jump
-        if buf[i] == ord(b"\x00"):
-            i += 1
-            continue
-        if buf[i] == ord("#"):
+        if cmd == ord(b"\x00"):
+            pass
+        elif cmd == ord("#"):
             reply += b"#"
-            i += 1
-            continue
         # Echo
-        if buf[i] == ord("K"):
+        elif cmd == ord("K"):
             if not (indiclient.isconnected):
                 reply += reply_error
             else:
-                reply += buf[i + 1 : i + 2] + b"#"
-            i += 2
-            continue
-        if not (device) or not (indiclient.isconnected) or not (device.isConnected()):
-            logger.info("Lost device " + TELESCOPE_DEVICE + ": can not process command")
-            return reply_error
-        # Alignment complete ?
-        if buf[i] == ord("J"):
-            reply += b"\x01" + b"#"
+                reply += buf[i : i + 1] + b"#"
             i += 1
+        elif not (device) or not (indiclient.isconnected) or not (device.isConnected()):
+            logger.info("Lost device " + TELESCOPE_DEVICE + ": cannot process command")
+            return reply + reply_error
+        # Alignment complete ?
+        elif cmd == ord("J"):
+            reply += b"\x01" + b"#"
         # Get Ra/Dec
-        elif buf[i] == ord("e") or buf[i] == ord("E"):
-            p = device.getNumber("EQUATORIAL_EOD_COORD")
-            while not (p) or type(p) != PyIndi.INumberVectorProperty:
-                p = device.getNumber("EQUATORIAL_EOD_COORD")
-                time.sleep(0.2)
+        elif cmd in [ord("e"), ord("E")]:
+            p = getNumberWithRetry("EQUATORIAL_EOD_COORD")
+            if p is None:
+                reply += reply_error
+                continue
             radeg = (p[0].value * 360.0) / 24.0
             decdeg = p[1].value
             if decdeg < 0.0:
@@ -124,17 +174,16 @@ def process_command(buf, indiclient, logger):
             if sys.version_info >= (3,):
                 rahex = bytes(rahex, "ascii")
                 dechex = bytes(dechex, "ascii")
-            if buf[i] == ord("e"):
+            if cmd == ord("e"):
                 reply += rahex + b"," + dechex + b"#"
             else:
                 reply += rahex[0:4] + b"," + dechex[0:4] + b"#"
-            i += 1
         # Get time
-        elif buf[i] == ord("h"):
-            p = device.getText("TIME_UTC")
-            while not (p) or type(p) != PyIndi.ITextVectorProperty:
-                time.sleep(0.2)
-                p = device.getText("TIME_UTC")
+        elif cmd == ord("h"):
+            p = getTextWithRetry("TIME_UTC")
+            if p is None:
+                reply += reply_error
+                continue
             utc8601 = p[0].text
             if p[1].text:
                 offset = int(p[1].text)
@@ -159,16 +208,12 @@ def process_command(buf, indiclient, logger):
                 )
                 + b"#"
             )
-            i += 1
         # Get Model
-        elif buf[i] == ord("m"):
-            p = device.getText("MOUNTINFORMATION")
-            ntry = 5
-            while (not (p) or type(p) != PyIndi.ITextVectorProperty) and ntry > 0:
-                time.sleep(0.2)
-                p = device.getText("MOUNTINFORMATION")
-                ntry -= 1
-            if p and type(p) == PyIndi.ITextVectorProperty:
+        elif cmd == ord("m"):
+            p = getTextWithRetry("MOUNTINFORMATION")
+            if p is None:
+                m = b"!"
+            else:
                 skywatcher_models = {
                     "EQ6": b"\x00",
                     "HEQ5": b"\x01",
@@ -182,16 +227,13 @@ def process_command(buf, indiclient, logger):
                     m = skywatcher_models[p[0].text]
                 else:
                     m = b"\x00"
-            else:
-                m = b"!"
             reply += m + b"#"
-            i += 1
         # Get Location
-        elif buf[i] == ord("w"):
-            p = device.getNumber("GEOGRAPHIC_COORD")
-            while not (p) or type(p) != PyIndi.INumberVectorProperty:
-                time.sleep(0.2)
-                p = device.getNumber("GEOGRAPHIC_COORD")
+        elif cmd == ord("w"):
+            p = getNumberWithRetry("GEOGRAPHIC_COORD")
+            if p is None:
+                reply += reply_error
+                continue
             latdeg = p[0].value
             longdeg = p[1].value
             elev = p[2].value
@@ -203,6 +245,8 @@ def process_command(buf, indiclient, logger):
             latfrac, latb = math.modf(latfrac * 60)
             latfrac, latc = math.modf(latfrac * 60)
             longh = b"\x00"
+            if longdeg > 180.0:
+                longdeg -= 360.0
             if longdeg < 0.0:
                 longh = b"\x01"
                 longdeg = -(longdeg)
@@ -216,155 +260,137 @@ def process_command(buf, indiclient, logger):
                 + longh
                 + b"#"
             )
-            i += 1
         # Get Version
-        elif buf[i] == ord("V"):
-            # reply+=b'21#'
-            # reply+=b'\x04\x0E#'
-            # reply+=b'\x03\x03#'
+        elif cmd == ord("V"):
+            # reply += b"21#"
+            # reply += b"\x04\x0E#"
+            # reply += b"\x03\x03#"
             # nex skywatcher ?
-            # reply+=b'042508#'
+            # reply += b"042508#"
             reply += b"032507"
             # celestron / old skywatcher ?
-            # reply+=b'\x04\x25\x07'
-            # reply+=b'\x04\x25\x07#' normally with a # but this corrupts the indi-synscan driver
-            i += 1
+            # reply += b"\x04\x25\x07"
+            # reply += b"\x04\x25\x07#" normally with a # but this corrupts the indi-synscan driver
         # Set time
-        elif buf[i] == ord("H"):
-            h = buf[i + 1]
-            m = buf[i + 2]
-            s = buf[i + 3]
-            mth = buf[i + 4]
-            d = buf[i + 5]
-            y = 2000 + buf[i + 6]
-            offset = buf[i + 7]
-            dst = buf[i + 8]
+        elif cmd == ord("H"):
+            [h, m, s, mth, d, y, offset, dst] = buf[i : i + 8]
+            i += 8
+            y += 2000
             if offset < 0:
                 offset = 256 - offset
             lt = datetime.datetime(y, mth, d, h, m, s, 0, None)
             utc = lt - datetime.timedelta(0, 0, 0, 0, 0, offset)
             logger.info("Setting time to " + utc.isoformat() + " " + str(offset))
-            p = device.getText("TIME_UTC")
-            while not (p) or type(p) != PyIndi.ITextVectorProperty:
-                time.sleep(0.2)
-                p = device.getText("TIME_UTC")
+            p = getTextWithRetry("TIME_UTC")
+            if p is None:
+                reply += reply_error
+                continue
             p[0].text = utc.isoformat()
             p[1].text = str(offset)
             indiclient.sendNewText(p)
             reply += b"#"
-            i += 9
         # Set Location
-        elif buf[i] == ord("W"):
-            lat = buf[i + 1]
-            lat += buf[i + 2] / 60
-            lat += buf[i + 3] / 3600
-            if buf[i + 4] == 1:
+        elif cmd == ord("W"):
+            data = buf[i : i + 8]
+            i += 8
+            lat = data[0] + (data[1] / 60) + (data[2] / 3600)
+            if data[3] == 1:
                 lat = -lat
-            long = buf[i + 5]
-            long += buf[i + 6] / 60
-            long += buf[i + 7] / 3600
-            if buf[i + 8] == 1:
+            long = data[4] + (data[5] / 60) + (data[6] / 3600)
+            if data[7] == 1:
                 long = 360.0 - long
-            p = device.getNumber("GEOGRAPHIC_COORD")
-            while not (p) or type(p) != PyIndi.INumberVectorProperty:
-                time.sleep(0.2)
-                p = device.getNumber("GEOGRAPHIC_COORD")
+            p = getNumberWithRetry("GEOGRAPHIC_COORD")
+            if p is None:
+                reply += reply_error
+                continue
             p[0].value = lat
             p[1].value = long
             indiclient.sendNewNumber(p)
             reply += b"#"
-            i += 9
         # Goto/Sync
-        elif (buf[i] == ord("r") or buf[i] == ord("R")) or (
-            buf[i] == ord("s") or buf[i] == ord("S")
-        ):
-            ingoto = buf[i] == ord("r") or buf[i] == ord("R")
-            sbuf = buf
-            if sys.version_info < (3,):
-                sbuf = str(buf)
-            if (buf[i] == ord("r")) or (buf[i] == ord("s")):
-                rahour = (int(sbuf[i + 1 : i + 9], 16) * 24.0) / (2**32)
-                decdeg = (int(sbuf[i + 10 : i + 18], 16) * 360.0) / (2**32)
-                i += 18
+        elif cmd in [ord("r"), ord("R"), ord("s"), ord("S")]:
+            ingoto = cmd in [ord("r"), ord("R")]
+            if cmd in [ord("r"), ord("s")]:
+                rahour = (int(buf[i : i + 8], 16) * 24.0) / (2**32)
+                decdeg = (int(buf[i + 9 : i + 17], 16) * 360.0) / (2**32)
+                i += 17
             else:
-                rahour = (int(sbuf[i + 1 : i + 5], 16) * 24.0) / (2**16)
-                decdeg = (int(sbuf[i + 6 : i + 10], 16) * 360.0) / (2**16)
-                i += 10
+                rahour = (int(buf[i : i + 4], 16) * 24.0) / (2**16)
+                decdeg = (int(buf[i + 5 : i + 9], 16) * 360.0) / (2**16)
+                i += 9
             if decdeg >= 270.0:  # I don't check for 90.0 < values < 270.0
                 decdeg = decdeg - 360.0
-            p = device.getNumber("EQUATORIAL_EOD_COORD")
-            while not (p) or type(p) != PyIndi.INumberVectorProperty:
-                p = device.getNumber("EQUATORIAL_EOD_COORD")
-                time.sleep(0.2)
+            p = getNumberWithRetry("EQUATORIAL_EOD_COORD")
+            if p is None:
+                reply += reply_error
+                continue
             p[0].value = rahour
             p[1].value = decdeg
-            pcs = device.getSwitch("ON_COORD_SET")
-            while not (pcs) or type(pcs) != PyIndi.ISwitchVectorProperty:
-                pcs = device.getNumber("ON_COORD_SET")
-                time.sleep(0.2)
+            pcs = getSwitchWithRetry("ON_COORD_SET")
+            if pcs is None:
+                reply += reply_error
+                continue
             if ingoto:
-                pcs[0].s = PyIndi.ISS_ON
-                pcs[1].s = PyIndi.ISS_OFF
-                pcs[2].s = PyIndi.ISS_OFF
+                pcs[0].setState(PyIndi.ISS_ON)
+                pcs[1].setState(PyIndi.ISS_OFF)
+                pcs[2].setState(PyIndi.ISS_OFF)
                 logger.info("Goto " + str(rahour) + ", " + str(decdeg))
             else:
-                pcs[0].s = PyIndi.ISS_OFF
-                pcs[1].s = PyIndi.ISS_OFF
-                pcs[2].s = PyIndi.ISS_ON
+                pcs[0].setState(PyIndi.ISS_OFF)
+                pcs[1].setState(PyIndi.ISS_OFF)
+                pcs[2].setState(PyIndi.ISS_ON)
                 logger.info("Sync " + str(rahour) + ", " + str(decdeg))
             indiclient.sendNewSwitch(pcs)
             indiclient.sendNewNumber(p)
             reply += b"#"
-        # in goto ? / abort goto
-        elif (buf[i] == ord("L")) or (buf[i] == ord("M")):
-            p = device.getNumber("EQUATORIAL_EOD_COORD")
-            while not (p) or type(p) != PyIndi.INumberVectorProperty:
-                p = device.getNumber("EQUATORIAL_EOD_COORD")
-                time.sleep(0.2)
-            if p.s == PyIndi.IPS_BUSY:
-                if buf[i] == ord("L"):
-                    reply += b"1#"
-                else:
-                    p = device.getSwitch("TELESCOPE_ABORT_MOTION")
-                    while not (p) or type(p) != PyIndi.ISwitchVectorProperty:
-                        p = device.getNumber("TELESCOPE_ABORT_MOTION")
-                        time.sleep(0.2)
-                    p[0].s = PyIndi.ISS_ON
-                    indiclient.sendNewSwitch(p)
-                    reply += b"#"
-            else:
-                if buf[i] == ord("L"):
-                    reply += b"0#"
-                else:
-                    reply += b"#"
-            i += 1
-        # MoveWE/MoveNS
-        elif buf[i] == ord("P"):
-            if buf[i + 1] != 2:  # variable rate not supported
+        # in goto ?
+        elif cmd == ord("L"):
+            p = getNumberWithRetry("EQUATORIAL_EOD_COORD")
+            if p is None:
                 reply += reply_error
-                i += 8
                 continue
-            if buf[i + 2] == 16:
+            if p.getState() == PyIndi.IPS_BUSY:
+                reply += b"1#"
+            else:
+                reply += b"0#"
+        # abort goto
+        elif cmd == ord("M"):
+            p = getNumberWithRetry("EQUATORIAL_EOD_COORD")
+            if p is None:
+                reply += reply_error
+                continue
+            if p.getState() == PyIndi.IPS_BUSY:
+                p = getSwitchWithRetry("TELESCOPE_ABORT_MOTION")
+                if p is None:
+                    reply += reply_error
+                    continue
+                p[0].setState(PyIndi.ISS_ON)
+                indiclient.sendNewSwitch(p)
+            reply += b"#"
+        # MoveWE/MoveNS
+        elif cmd == ord("P"):
+            data = buf[i : i + 7]
+            i += 7
+            if data[0] != 2:  # variable rate not supported
+                reply += reply_error
+                continue
+            if data[1] == 16:
                 pmotionname = "TELESCOPE_MOTION_WE"
             else:  # should be 17
                 pmotionname = "TELESCOPE_MOTION_NS"
-            pmotion = device.getSwitch(pmotionname)
-            while not (pmotion) or type(pmotion) != PyIndi.ISwitchVectorProperty:
-                pmotion = device.getSwitch(pmotionname)
-                time.sleep(0.2)
-            rate = buf[i + 4]
+            pmotion = getSwitchWithRetry(pmotionname)
+            if pmotion is None:
+                reply += reply_error
+                continue
+            rate = data[3]
             if rate == 0:  # stop
-                pmotion[0].s = PyIndi.ISS_OFF
-                pmotion[1].s = PyIndi.ISS_OFF
+                pmotion[0].setState(PyIndi.ISS_OFF)
+                pmotion[1].setState(PyIndi.ISS_OFF)
                 indiclient.sendNewSwitch(pmotion)
             else:
-                prate = device.getSwitch("TELESCOPE_SLEW_RATE")
-                while not (prate) or type(prate) != PyIndi.ISwitchVectorProperty:
-                    prate = device.getSwitch("TELESCOPE_SLEW_RATE")
-                    time.sleep(0.2)
-                if len(prate) < 1:  # no slew rate
+                prate = getSwitchWithRetry("TELESCOPE_SLEW_RATE")
+                if prate is None or len(prate) < 1:  # no slew rate
                     reply += reply_error
-                    i += 8
                     continue
                 prateswitches = {
                     "SLEW_GUIDE": None,
@@ -373,9 +399,9 @@ def process_command(buf, indiclient, logger):
                     "SLEW_MAX": None,
                 }
                 for p in prate:
-                    p.s = PyIndi.ISS_OFF
-                    if p.name in prateswitches:
-                        prateswitches[p.name] = p
+                    p.setState(PyIndi.ISS_OFF)
+                    if p.getName() in prateswitches:
+                        prateswitches[p.getName()] = p
                 prateset = prate[len(prate) - 1]
                 if rate == 1 and prateswitches["SLEW_GUIDE"]:
                     prateset = prateswitches["SLEW_GUIDE"]
@@ -385,72 +411,60 @@ def process_command(buf, indiclient, logger):
                     prateset = prateswitches["SLEW_FIND"]
                 if 8 <= rate <= 9 and prateswitches["SLEW_MAX"]:
                     prateset = prateswitches["SLEW_MAX"]
-                prateset.s = PyIndi.ISS_ON
+                prateset.setState(PyIndi.ISS_ON)
                 indiclient.sendNewSwitch(prate)
-                movedir = buf[i + 3]
+                movedir = data[2]
                 if movedir == 36:  # positive move i.e. West/North
-                    pmotion[0].s = PyIndi.ISS_ON
-                    pmotion[1].s = PyIndi.ISS_OFF
+                    pmotion[0].setState(PyIndi.ISS_ON)
+                    pmotion[1].setState(PyIndi.ISS_OFF)
                 else:  # should be 37 negative move i.e. East/South
-                    pmotion[0].s = PyIndi.ISS_OFF
-                    pmotion[1].s = PyIndi.ISS_ON
+                    pmotion[0].setState(PyIndi.ISS_OFF)
+                    pmotion[1].setState(PyIndi.ISS_ON)
                 indiclient.sendNewSwitch(pmotion)
             reply += b"#"
-            i += 8
-            continue
         # Pierside
-        elif buf[i] == ord("p"):
-            p = device.getSwitch("TELESCOPE_PIER_SIDE")
-            while not (p) or type(p) != PyIndi.ISwitchVectorProperty:
-                p = device.getSwitch("TELESCOPE_PIER_SIDE")
-                time.sleep(0.2)
-            if p[0].s == PyIndi.ISS_ON:  # PIER_EAST
+        elif cmd == ord("p"):
+            p = getSwitchWithRetry("TELESCOPE_PIER_SIDE")
+            if p is None:
+                reply += reply_error
+                continue
+            if p[0].getState() == PyIndi.ISS_ON:  # PIER_EAST
                 reply += b"E#"
             else:
                 reply += b"W#"
+        # Get Tracking
+        elif cmd == ord("t"):
+            p = getSwitchWithRetry("TELESCOPE_TRACK_RATE")
+            if p is None:
+                reply += reply_error
+                continue
+            mode = b"0"
+            if any(p[n].getState() == PyIndi.ISS_ON for n in range(4)):
+                mode = b"2"
+            reply += mode + b"#"
+        # Set Tracking
+        elif cmd == ord("T"):
+            mode = buf[i]
             i += 1
-        # Get/Set Tracking
-        elif (buf[i] == ord("t")) or (buf[i] == ord("T")):
-            p = device.getSwitch("TELESCOPE_TRACK_RATE")
-            while not (p) or type(p) != PyIndi.ISwitchVectorProperty:
-                p = device.getSwitch("TELESCOPE_TRACK_RATE")
-                time.sleep(0.2)
-            if buf[i] == ord("t"):
-                mode = b"0"
-                if (
-                    (p[0].s == PyIndi.ISS_ON)
-                    or (p[1].s == PyIndi.ISS_ON)
-                    or (p[1].s == PyIndi.ISS_ON)
-                    or (p[2].s == PyIndi.ISS_ON)
-                ):
-                    mode = b"2"
-                reply += mode + b"#"
-                i += 1
+            p = getSwitchWithRetry("TELESCOPE_TRACK_RATE")
+            if p is None:
+                reply += reply_error
+                continue
+            if mode in [ord("2"), ord("3")]:  # EQ/PEC tracking (no Alt/Az)
+                if p[0].getState() == PyIndi.ISS_OFF:
+                    p[0].setState(ON)
+                    p[1].setState(OFF)
+                    p[2].setState(OFF)
+                    p[3].setState(OFF)
+                    indiclient.sendNewSwitch(p)
             else:
-                mode = buf[1]
-                if (mode == ord("2")) or (
-                    mode == ord("3")
-                ):  # EQ/PEC tracking (no Alt/Az)
-                    if p[0].s == PyIndi.ISS_OFF:
-                        p[0].s = PyIndi.ISS_ON
-                        p[1].s = PyIndi.ISS_OFF
-                        p[1].s = PyIndi.ISS_OFF
-                        p[1].s = PyIndi.ISS_OFF
-                        indiclient.sendNewSwitch(p)
-                else:
-                    if (
-                        p[0].s == PyIndi.ISS_ON
-                        or p[1].s == PyIndi.ISS_ON
-                        or p[2].s == PyIndi.ISS_ON
-                        or p[3].s == PyIndi.ISS_ON
-                    ):
-                        p[0].s = PyIndi.ISS_OFF
-                        p[1].s = PyIndi.ISS_OFF
-                        p[1].s = PyIndi.ISS_OFF
-                        p[1].s = PyIndi.ISS_OFF
-                        indiclient.sendNewSwitch(p)
-                reply += b"#"
-                i += 2
+                if any(p[n].getState() == PyIndi.ISS_ON for n in range(4)):
+                    p[0].setState(OFF)
+                    p[1].setState(OFF)
+                    p[2].setState(OFF)
+                    p[3].setState(OFF)
+                    indiclient.sendNewSwitch(p)
+            reply += b"#"
         else:  # unknown
             reply += reply_error
             i += 1
@@ -499,8 +513,8 @@ if not (device.isConnected()):
             time.sleep(0.5)
             device_sim = device.getSwitch(TELESCOPE_SIMPROP)
 
-        device_sim[0].s = PyIndi.ISS_ON  # the "ENABLE" switch
-        device_sim[1].s = PyIndi.ISS_OFF  # the "DISABLE" switch
+        device_sim[0].setState(PyIndi.ISS_ON)  # the "ENABLE" switch
+        device_sim[1].setState(PyIndi.ISS_OFF)  # the "DISABLE" switch
         indiclient.sendNewSwitch(device_sim)
 
 if not (device.isConnected()):
@@ -510,8 +524,8 @@ if not (device.isConnected()):
         time.sleep(0.5)
         device_connect = device.getSwitch("CONNECTION")
 if not (device.isConnected()):
-    device_connect[0].s = PyIndi.ISS_ON  # the "CONNECT" switch
-    device_connect[1].s = PyIndi.ISS_OFF  # the "DISCONNECT" switch
+    device_connect[0].setState(PyIndi.ISS_ON)  # the "CONNECT" switch
+    device_connect[1].setState(PyIndi.ISS_OFF)  # the "DISCONNECT" switch
     indiclient.sendNewSwitch(device_connect)
 while not (device.isConnected()):
     time.sleep(0.2)
