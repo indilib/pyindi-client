@@ -2,7 +2,7 @@ pyindi-client ![tests](https://github.com/indilib/pyindi-client/actions/workflow
 =============
 
 
-version : 0.2.8
+version : v1.9.1
 
 An [INDI](http://indilib.org/) Client Python API, auto-generated from
 the official C++ API using [SWIG](http://www.swig.org/).

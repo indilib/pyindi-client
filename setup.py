@@ -24,7 +24,7 @@ except:
 
 ###
 
-VERSION = "0.2.8"
+VERSION = "v1.9.1"
 root_dir = abspath(dirname(__file__))
 
 # Add search paths here for libindiclient.a
@@ -101,7 +101,7 @@ setup(
     name="pyindi-client",
     author="geehalel",
     author_email="geehalel@gmail.com",
-    url="https://github.com/geehalel/pyindi-client",
+    url="https://github.com/indilib/pyindi-client",
     license="GNU General Public License v3 or later (GPLv3+)",
     description="""Third party Python API for INDI client""",
     # long_description=readme.read(),
