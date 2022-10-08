@@ -100,6 +100,7 @@
 %ignore INDI::PropertyBasic::define;
 %ignore INDI::PropertyBasic::vapply;
 %ignore INDI::PropertyBasic::vdefine;
+%ignore INDI::PropertyBasic::operator->;
 
 %include <indipropertybasic.h>
 
