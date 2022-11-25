@@ -12,7 +12,6 @@ RUN pip3 install -U pip
 
 #build and install latest indi release
 RUN git clone https://github.com/indilib/indi.git
-RUN cd indi && git checkout `git describe --tags \`git rev-list --tags --max-count=1\``
 RUN mkdir indi/build && cd indi/build && cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Debug .. && make -j4 && make install
 
 #install pyindi-client package
