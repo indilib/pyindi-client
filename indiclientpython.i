@@ -24,7 +24,9 @@
 %include "std_string.i"
 %include "stdint.i"
 
+%feature("director") BaseMediator;
 %feature("director") BaseClient;
+
 %feature("director:except") {
     if( $error != NULL ) {
         PyObject *ptype, *pvalue, *ptraceback;
@@ -218,15 +220,5 @@ B_ONLY
   public:
     void sendOneBlobFromBuffer(const char *name, const char *type, char *data, long len) {
       $self->sendOneBlob(name, len, type, (void*)(data));
-    }
-    /* TODO(chripell): is there a way to use %implicitconv? */
-    void sendNewText(INDI::PropertyView<IText> * pp) {
-      $self->sendNewText(static_cast<ITextVectorProperty *>(pp));
-    }
-    void sendNewNumber(INDI::PropertyView<INumber> * pp) {
-      $self->sendNewNumber(static_cast<INumberVectorProperty *>(pp));
-    }
-    void sendNewSwitch(INDI::PropertyView<ISwitch> * pp) {
-      $self->sendNewSwitch(static_cast<ISwitchVectorProperty *>(pp));
     }
 }
