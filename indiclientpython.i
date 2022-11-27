@@ -24,6 +24,8 @@
 %include "std_string.i"
 %include "stdint.i"
 
+%implicitconv INDI::Property;
+
 %feature("director") BaseMediator;
 %feature("director") BaseClient;
 
