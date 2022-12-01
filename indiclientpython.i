@@ -109,7 +109,8 @@
 %include <indipropertybasic.h>
 
 %extend INDI::PropertyBasic {
-  const INDI::WidgetView<T> * __getitem__(int index) {
+  const INDI::WidgetView<T> * __getitem__(int index) throw(std::out_of_range) {
+    if (index >= $self->size()) throw std::out_of_range("PropertyBasic index out of bounds");
     return $self->at(index);
   }
 
@@ -201,7 +202,7 @@ B_ONLY
 %include <indiproperties.h>
 
 %extend INDI::Properties {
-  INDI::Property * __getitem__(int index) {
+  INDI::Property * __getitem__(int index) throw(std::out_of_range) {
     if ((unsigned int)index >= $self->size()) throw std::out_of_range("Properties index out of bounds");
     return &($self->at(index));
   }
