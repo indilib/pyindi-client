@@ -24,7 +24,11 @@
 %include "std_string.i"
 %include "stdint.i"
 
+%implicitconv INDI::Property;
+
+%feature("director") BaseMediator;
 %feature("director") BaseClient;
+
 %feature("director:except") {
     if( $error != NULL ) {
         PyObject *ptype, *pvalue, *ptraceback;
@@ -105,7 +109,8 @@
 %include <indipropertybasic.h>
 
 %extend INDI::PropertyBasic {
-  const INDI::WidgetView<T> * __getitem__(int index) {
+  const INDI::WidgetView<T> * __getitem__(int index) throw(std::out_of_range) {
+    if (index >= $self->size()) throw std::out_of_range("PropertyBasic index out of bounds");
     return $self->at(index);
   }
 
@@ -197,7 +202,7 @@ B_ONLY
 %include <indiproperties.h>
 
 %extend INDI::Properties {
-  INDI::Property * __getitem__(int index) {
+  INDI::Property * __getitem__(int index) throw(std::out_of_range) {
     if ((unsigned int)index >= $self->size()) throw std::out_of_range("Properties index out of bounds");
     return &($self->at(index));
   }
@@ -218,15 +223,5 @@ B_ONLY
   public:
     void sendOneBlobFromBuffer(const char *name, const char *type, char *data, long len) {
       $self->sendOneBlob(name, len, type, (void*)(data));
-    }
-    /* TODO(chripell): is there a way to use %implicitconv? */
-    void sendNewText(INDI::PropertyView<IText> * pp) {
-      $self->sendNewText(static_cast<ITextVectorProperty *>(pp));
-    }
-    void sendNewNumber(INDI::PropertyView<INumber> * pp) {
-      $self->sendNewNumber(static_cast<INumberVectorProperty *>(pp));
-    }
-    void sendNewSwitch(INDI::PropertyView<ISwitch> * pp) {
-      $self->sendNewSwitch(static_cast<ISwitchVectorProperty *>(pp));
     }
 }
