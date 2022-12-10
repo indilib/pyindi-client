@@ -2,6 +2,7 @@
 title: Releases
 ---
 
+-   v1.9.9: Support INDI 1.9.9.  Fix implicit conversion between types
 -   v1.9.0: Change versioning convention. Major & minor reflects supported indilib 
 -   v0.2.8: Support INDI 1.9.0
 -   v0.2.7b: High-level INDI Property support (indi-core v1.9.0 dev).
