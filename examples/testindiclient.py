@@ -6,6 +6,7 @@ import logging
 # import the PyIndi module
 import PyIndi
 
+
 # The IndiClient class which inherits from the module PyIndi.BaseClient class
 # Note that all INDI constants are accessible from the module as PyIndi.CONSTANTNAME
 class IndiClient(PyIndi.BaseClient):
@@ -84,7 +85,6 @@ for device in deviceList:
 # Print all properties and their associated values.
 print("List of Device Properties")
 for device in deviceList:
-
     print(f"-- {device.getDeviceName()}")
     genericPropertyList = device.getProperties()
 
