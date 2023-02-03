@@ -16,40 +16,18 @@ class IndiClient(PyIndi.BaseClient):
         global monitored
         global cmonitor
         # we catch the "CONNECTION" property of the monitored device
-        if p.getDeviceName() == monitored and p.getName() == "CONNECTION":
-            cmonitor = p.getSwitch()
+        if p.getDeviceName() == monitored and p.isNameMatch("CONNECTION"):
+            cmonitor = PyIndi.PropertySwitch(p)
         print("New property ", p.getName(), " for device ", p.getDeviceName())
 
-    def removeProperty(self, p):
-        pass
-
-    def newBLOB(self, bp):
-        pass
-
-    def newSwitch(self, svp):
-        pass
-
-    def newNumber(self, nvp):
+    def updateProperty(self, p):
         global newval
         global prop
-        # We only monitor Number properties of the monitored device
-        prop = nvp
-        newval = True
-
-    def newText(self, tvp):
-        pass
-
-    def newLight(self, lvp):
-        pass
-
-    def newMessage(self, d, m):
-        pass
-
-    def serverConnected(self):
-        pass
-
-    def serverDisconnected(self, code):
-        pass
+        nvp = PyIndi.PropertyNumber(p)
+        if nvp.isValid():
+            # We only monitor Number properties of the monitored device
+            prop = nvp
+            newval = True
 
 
 monitored = "Telescope Simulator"
@@ -72,9 +50,9 @@ if not (dmonitor.isConnected()):
     # Property vectors are mapped to iterable Python objects
     # Hence we can access each element of the vector using Python indexing
     # each element of the "CONNECTION" vector is a ISwitch
-    cmonitor[0].s = PyIndi.ISS_ON  # the "CONNECT" switch
-    cmonitor[1].s = PyIndi.ISS_OFF  # the "DISCONNECT" switch
-    indiclient.sendNewSwitch(cmonitor)  # send this new value to the device
+    cmonitor[0].setState(PyIndi.ISS_ON)  # the "CONNECT" switch
+    cmonitor[1].setState(PyIndi.ISS_OFF)  # the "DISCONNECT" switch
+    indiclient.sendNewProperty(cmonitor)  # send this new value to the device
 
 newval = False
 prop = None
@@ -82,10 +60,12 @@ nrecv = 0
 while nrecv < 10:
     # we poll the newval global variable
     if newval:
-        print("newval for property", prop.name, " of device ", prop.device)
+        print(
+            "newval for property", prop.getName(), " of device ", prop.getDeviceName()
+        )
         # prop is a property vector, mapped to an iterable Python object
         for n in prop:
             # n is a INumber as we only monitor number vectors
-            print(n.name, " = ", n.value)
+            print(n.getName(), " = ", n.getValue())
         nrecv += 1
         newval = False

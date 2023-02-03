@@ -205,17 +205,17 @@ class IndiClient(PyIndi.BaseClient):
         global autoconnect, isIndiTelescopeConnected, indiTelescopeRAJNOW, indiTelescopeDECJNOW
         # self.logger.info("new property "+ p.getName() + " for device "+ p.getDeviceName())
         if p.getDeviceName() == self.telescope:
-            if p.getName() == "CONNECTION":
+            if p.isNameMatch("CONNECTION"):
                 if not (self.tdevice.isConnected()) and autoconnect:
                     self.logger.info("Autoconnecting device " + p.getDeviceName())
                     self.connectDevice(self.telescope)
                 if self.tdevice.isConnected():
                     self.logger.info("Found connected device " + p.getDeviceName())
                     isIndiTelescopeConnected = True
-            if p.getName() == "EQUATORIAL_EOD_COORD":
-                nvp = p.getNumber()
-                indiTelescopeRAJNOW = nvp[0].value
-                indiTelescopeDECJNOW = nvp[1].value
+            if p.isNameMatch("EQUATORIAL_EOD_COORD"):
+                nvp = PyIndi.PropertyNumber(p)
+                indiTelescopeRAJNOW = nvp[0].getValue()
+                indiTelescopeDECJNOW = nvp[1].getValue()
                 self.logger.info(
                     "Got JNow Eq. coords for "
                     + p.getDeviceName()
@@ -226,42 +226,30 @@ class IndiClient(PyIndi.BaseClient):
                     + ")"
                 )
 
-    def removeProperty(self, p):
-        pass
+    def updateProperty(self, p):
+        if p.getDeviceName() != self.telescope:
+            return
 
-    def newBLOB(self, bp):
-        pass
-
-    def newSwitch(self, svp):
         global isIndiTelescopeConnected
-        # self.logger.info ("new Switch "+ svp.name.decode() + " for device "+ svp.device.decode())
-        if svp.device == self.telescope:
-            if svp.name == "CONNECTION":
-                if svp[0].s == PyIndi.ISS_ON:
-                    isIndiTelescopeConnected = True
-                if svp[1].s == PyIndi.ISS_ON:
-                    isIndiTelescopeConnected = False
+        if p.isNameMatch("CONNECTION"):
+            svp = PyIndi.PropertySwitch(p)
+            if svp[0].getState() == PyIndi.ISS_ON:
+                isIndiTelescopeConnected = True
+            if svp[1].getState() == PyIndi.ISS_ON:
+                isIndiTelescopeConnected = False
 
-    def newNumber(self, nvp):
         global indiTelescopeRAJNOW, indiTelescopeDECJNOW
-        if nvp.device == self.telescope:
-            if nvp.name == "EQUATORIAL_EOD_COORD":
-                indiTelescopeRAJNOW = nvp[0].value
-                indiTelescopeDECJNOW = nvp[1].value
-                # self.logger.info ("RA/DEC Timestamp "+str(nvp.timestamp))
+        if p.isNameMatch("EQUATORIAL_EOD_COORD"):
+            nvp = PyIndi.PropertyNumber(p)
+            indiTelescopeRAJNOW = nvp[0].getValue()
+            indiTelescopeDECJNOW = nvp[1].getValue()
+            # self.logger.info ("RA/DEC Timestamp "+str(nvp.timestamp))
 
-    def newText(self, tvp):
         global indiTelescopeTIMEUTC
-        if tvp.device == self.telescope:
-            if tvp.name == "TIME_UTC":
-                indiTelescopeTIMEUTC = tvp[0].text
-                self.logger.info("UTC Time " + str(tvp[0].text))
-
-    def newLight(self, lvp):
-        pass
-
-    def newMessage(self, d, m):
-        pass
+        if p.isNameMatch("TIME_UTC"):
+            tvp = PyIndi.PropertyText(p)
+            indiTelescopeTIMEUTC = tvp[0].getText()
+            self.logger.info("UTC Time " + str(tvp[0].getText()))
 
     def serverConnected(self):
         global indiServerConnected
@@ -348,15 +336,15 @@ try:
                 logging.info("Sending goto (ra, dec)=" + str(gotoQueue[0]))
                 d = indiclient.getDevice(inditelescope)
                 oncoordset = d.getSwitch("ON_COORD_SET")
-                oncoordset[0].s = PyIndi.ISS_ON
-                oncoordset[1].s = PyIndi.ISS_OFF
-                oncoordset[2].s = PyIndi.ISS_OFF
-                indiclient.sendNewSwitch(oncoordset)
+                oncoordset.reset()
+                oncoordset[0].setState(PyIndi.ISS_ON)
+                indiclient.sendNewProperty(oncoordset)
+
                 eqeodcoords = d.getNumber("EQUATORIAL_EOD_COORD")
-                eqeodcoords[0].value = gotoQueue[0][0]
-                eqeodcoords[1].value = gotoQueue[0][1]
+                eqeodcoords[0].setValue(gotoQueue[0][0])
+                eqeodcoords[1].setValue(gotoQueue[0][1])
                 gotoQueue = gotoQueue[1:]
-                indiclient.sendNewNumber(eqeodcoords)
+                indiclient.sendNewProperty(eqeodcoords)
         # logging.info('Perform step')
         # perform one step
         readers = [stelSocket] + [s for s in stelClients]
