@@ -65,7 +65,7 @@ Getting Started
 ===============
 
 In the following simple example, an INDI 2.0.0 client class is defined giving
-the implementation of the pure virtual INDI client functions. This is
+the implementation of the virtual INDI client functions. This is not
 mandatory. This class is instantiated once, and after defining server
 host and port in this object, a list of devices together with their
 properties is printed on the console.
@@ -226,8 +226,8 @@ if not anyProperty.isValid():
     # is mismatch (invalid cast)
     pass
 
-stringState  = anyProperty.getStateAsString() # returns Idle/Ok/Busy/Alert
-stringPerm   = anyProperty.getPermissionAsString() # returns ro/wo/rw
+stringState  = anyProperty.getStateAsString()            # returns Idle/Ok/Busy/Alert
+stringPerm   = anyProperty.getPermissionAsString()       # returns ro/wo/rw
 someWidget   = anyProperty.findWidgetByName("Some name") # returns widget with `Some name` name
 ```
 
@@ -394,9 +394,10 @@ size    = blobProperty[0].size
 ```
 
 ## BaseClient virual methods
-As of INDI Core 2.0.0, features such as:
+As of INDI Core 2.0.0, there are no features like:
 - newText
 - newSwitch
+- newNumber
 - newLight
 - newBlob
 
@@ -415,7 +416,7 @@ class IndiClient(PyIndi.BaseClient):
     # Emmited when a device is deleted from INDI server.
     def removeDevice(self, dev):
         pass
-    
+
     # Emmited when a new property is created for an INDI driver.
     def newProperty(self, genericProperty):
         pass
