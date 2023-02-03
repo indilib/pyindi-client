@@ -243,7 +243,7 @@ class IndiClient(PyIndi.BaseClient):
             nvp = PyIndi.PropertyNumber(p)
             indiTelescopeRAJNOW = nvp[0].getValue()
             indiTelescopeDECJNOW = nvp[1].getValue()
-            # self.logger.info ("RA/DEC Timestamp "+str(nvp.timestamp))
+            # self.logger.info ("RA/DEC Timestamp "+str(nvp.getTimestamp()))
 
         global indiTelescopeTIMEUTC
         if p.isNameMatch("TIME_UTC"):
