@@ -2,7 +2,7 @@ Source: pyindi-client
 Section: python
 Priority: optional
 Maintainer: Jasem Mutlaq <mutlaqja@ikarustech.com>
-Build-Depends: debhelper-compat (= 10), swig, libindi-dev
+Build-Depends: debhelper-compat (= 10), swig, libindi-dev, libcfitsio-dev, libnova-dev, libusb-1.0-0-dev, zlib1g-dev
 Build-Depends-Indep:
  python3-all,
  python3-dev,
