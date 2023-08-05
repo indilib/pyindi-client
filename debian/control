@@ -5,6 +5,7 @@ Maintainer: Jasem Mutlaq <mutlaqja@ikarustech.com>
 Build-Depends: debhelper-compat (= 10)
 Build-Depends-Indep:
  python3-all,
+ python3-dev,
  dh-python,
  swig,
  libindi-dev,
