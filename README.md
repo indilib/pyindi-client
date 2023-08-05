@@ -10,7 +10,12 @@ the official C++ API using [SWIG](http://www.swig.org/).
 Installation
 ============
 
-Use pip
+## Ubuntu
+```
+sudo apt-add-repository ppa:mutlaqja/ppa
+sudo apt-get -y install python3-indi-client
+```
+## Using Pip
 
 ``` {.sourceCode .sh}
 pip install pyindi-client
