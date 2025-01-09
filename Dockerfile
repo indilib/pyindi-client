@@ -6,8 +6,8 @@ ENV DEBIAN_FRONTEND="noninteractive" TZ=Etc/UTC
 
 #install dependencies
 RUN apt-get update -y && apt-get upgrade -y
-RUN apt-get install -y  git  cdbs  dkms  cmake  fxload  libgps-dev  libgsl-dev  libraw-dev  libusb-dev  zlib1g-dev  libftdi-dev  libgsl0-dev  libjpeg-dev  libkrb5-dev  libnova-dev  libtiff-dev  libfftw3-dev  librtlsdr-dev  libcfitsio-dev  libgphoto2-dev  build-essential  libusb-1.0-0-dev  libboost-regex-dev  libcurl4-gnutls-dev libev-dev
-RUN apt-get install python3-dev python3-pip python3-venv virtualenv swig -y
+RUN apt-get install -y  git  cdbs  dkms  cmake  fxload  libgps-dev  libgsl-dev  libraw-dev  libusb-dev  zlib1g-dev  libftdi-dev  libgsl0-dev  libjpeg-dev  libkrb5-dev  libnova-dev  libtiff-dev  libfftw3-dev  librtlsdr-dev  libcfitsio-dev  libgphoto2-dev  build-essential  libusb-1.0-0-dev  libboost-regex-dev  libcurl4-gnutls-dev libev-dev tox
+RUN apt-get install -y python3-dev python3-pip python3-venv virtualenv swig
 
 RUN python3 -m venv /pyindi-client/venv
 
