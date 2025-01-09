@@ -188,7 +188,13 @@ B_ONLY
   PyObject *getblobdata() {
     PyObject *result;
 
+    PyGILState_STATE gstate;
+    gstate = PyGILState_Ensure();
+
     result = PyByteArray_FromStringAndSize((const char*) $self->blob, $self->size);
+
+    PyGILState_Release(gstate);
+
     return result;
   }
  };
