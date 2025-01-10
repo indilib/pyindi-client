@@ -490,6 +490,16 @@ class IndiClient(PyIndi.BaseClient):
         print(f"new Light {prop.getName()} for device {prop.getDeviceName()}")
 ```
 
+
+### INDI Version Compatibility
+| Versions         | commit                        | pip     |
+| ---------------- | ----------------------------- | ------- |
+| v2.0.4 - latest  | HEAD                          | `pip3 install 'git+https://github.com/indilib/pyindi-client.git'` |
+| v2.0.0 - v2.0.3  | indilib/pyindi-client@674706f | `pip3 install 'git+https://github.com/indilib/pyindi-client.git@674706f#egg=pyindi-client'` |
+| v1.9.9           | indilib/pyindi-client@ce808b7 | `pip3 install 'git+https://github.com/indilib/pyindi-client.git@ce808b7#egg=pyindi-client'` |
+| v1.9.8           | indilib/pyindi-client@ffd939b | `pip3 install 'git+https://github.com/indilib/pyindi-client.git@ffd939b#egg=pyindi-client'` |
+
+
 Notes
 -----
 
