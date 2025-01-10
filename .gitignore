@@ -2,3 +2,7 @@
 __pycache__
 .idea
 pyindi_client.egg-info
+PyIndi.py
+build/
+indiclientpython_wrap.cpp
+indiclientpython_wrap.h
