@@ -24,14 +24,13 @@ jobs:
           docker run --rm pyindi-client
 
   build_wheels:
-    name: Build wheels on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
+    name: Build wheels for ${{ matrix.arch }}
+    runs-on: ubuntu-latest
     needs: test
-    environment: pypi
     strategy:
       matrix:
-        os: [ubuntu-latest]
         arch: [x86_64, aarch64]
+    environment: pypi
 
     steps:
       - uses: actions/checkout@v3
@@ -39,8 +38,8 @@ jobs:
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.16.2
         env:
-          CIBW_BUILD: "cp39-* cp310-* cp311-* cp312-*"
           CIBW_ARCHS_LINUX: "${{ matrix.arch }}"
+          CIBW_BUILD: "cp39-* cp310-* cp311-* cp312-*"
           CIBW_SKIP: "*-musllinux_*"
           CIBW_MANYLINUX_X86_64_IMAGE: quay.io/pypa/manylinux2014_x86_64:latest
           CIBW_MANYLINUX_AARCH64_IMAGE: quay.io/pypa/manylinux2014_aarch64:latest
@@ -80,7 +79,8 @@ jobs:
             cmake -DCMAKE_INSTALL_PREFIX=/usr \
                   -DCMAKE_BUILD_TYPE=Release \
                   -DINDI_BUILD_SERVER=OFF \
-                  -DINDI_BUILD_DRIVERS=OFF \..
+                  -DINDI_BUILD_DRIVERS=OFF \
+                  .. 
             make -j4
             make install
             cd ../..
