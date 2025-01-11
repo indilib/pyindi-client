@@ -1,30 +1,29 @@
-pyindi-client ![tests](https://github.com/indilib/pyindi-client/actions/workflows/main.yml/badge.svg)
-=============
+# pyindi-client ![tests](https://github.com/indilib/pyindi-client/actions/workflows/main.yml/badge.svg)
 
-
-version : v2.0.4
+version : v2.1.1
 
 An [INDI](http://indilib.org/) Client Python API, auto-generated from
 the official C++ API using [SWIG](http://www.swig.org/).
 
-Installation
-============
+# Installation
 
 ## Ubuntu
+
 ```
 sudo apt-add-repository ppa:mutlaqja/ppa
 sudo apt-get -y install python3-indi-client
 ```
+
 ## Using Pip
 
-``` {.sourceCode .sh}
+```{.sourceCode .sh}
 pip install pyindi-client
 ```
 
 Alternatively download a zip archive (use commits history to get a
 previous release), extract it and run
 
-``` {.sourceCode .sh}
+```{.sourceCode .sh}
 python setup.py install
 ```
 
@@ -37,37 +36,35 @@ library (try [locate lindiclient.a]{.title-ref} from the command line)
 and add its path to the [libindisearchpaths]{.title-ref} variable in the
 setup script.
 
-Dependencies
-============
+# Dependencies
 
 For the above installation to work, you need to have installed from your
 distribution repositories the following packages: Python setup tools,
 Python development files, libindi development files and swig.
 
--   On an Ubuntu-like distribution, you may use
+- On an Ubuntu-like distribution, you may use
 
-    ``` {.sourceCode .sh}
-    apt-get install python-setuptools
-    apt-get install python-dev
-    apt-get install libindi-dev
-    apt-get install swig
-    apt-get install libcfitsio-dev
-    apt-get install libnova-dev
-    ```
+  ```{.sourceCode .sh}
+  apt-get install python-setuptools
+  apt-get install python-dev
+  apt-get install libindi-dev
+  apt-get install swig
+  apt-get install libcfitsio-dev
+  apt-get install libnova-dev
+  ```
 
--   On a Fedora-like distribution, you may use
+- On a Fedora-like distribution, you may use
 
-    ``` {.sourceCode .sh}
-    dnf install python-setuptools
-    dnf install python-devel
-    dnf install libindi-devel
-    dnf install swig
-    dnf install libcfitsio-dev
-    dnf install libnova-dev
-    ```
+  ```{.sourceCode .sh}
+  dnf install python-setuptools
+  dnf install python-devel
+  dnf install libindi-devel
+  dnf install swig
+  dnf install libcfitsio-dev
+  dnf install libnova-dev
+  ```
 
-Getting Started
-===============
+# Getting Started
 
 In the following simple example, an INDI 2.0.0 client class is defined giving
 the implementation of the virtual INDI client functions. This is not
@@ -172,7 +169,7 @@ for device in deviceList:
         if genericProperty.getType() == PyIndi.INDI_LIGHT:
             for widget in PyIndi.PropertyLight(genericProperty):
                 print(f"       {widget.getLabel()}({widget.getLabel()}) = {widget.getStateAsString()}")
-        
+
         if genericProperty.getType() == PyIndi.INDI_BLOB:
             for widget in PyIndi.PropertyBlob(genericProperty):
                 print(f"       {widget.getName()}({widget.getLabel()}) = <blob {widget.getSize()} bytes>")
@@ -182,13 +179,14 @@ print("Disconnecting")
 indiClient.disconnectServer()
 ```
 
-Migration to INDI Core 2.0.0
-===============
+# Migration to INDI Core 2.0.0
 
 ## For all property
+
 Applies to all properties available in the library (Switch/Number/Text/Light/Blob)
 
 New implementation since INDI Core 1.9.x
+
 ```python
 # set
 anyProperty.setDeviceName("Some device")
@@ -237,6 +235,7 @@ someWidget   = anyProperty.findWidgetByName("Some name") # returns widget with `
 ```
 
 Deprecated implementation
+
 ```python
 # set
 anyProperty.device    = "Some device"
@@ -266,7 +265,9 @@ label = anyProperty[0].label
 ```
 
 ## Property Text
+
 New implementation since INDI Core 1.9.x
+
 ```python
 # set
 textProperty[0].setText("Some text")
@@ -274,7 +275,9 @@ textProperty[0].setText("Some text")
 # get
 text  = textProperty[0].getText()
 ```
+
 Deprecated implementation
+
 ```python
 # set
 textProperty[0].text  = "Some text"
@@ -284,7 +287,9 @@ text  = textProperty[0].text
 ```
 
 ## Property Number
+
 New implementation since INDI Core 1.9.x
+
 ```python
 # set
 numberProperty[0].setFormat("Some format")
@@ -301,7 +306,9 @@ max    = numberProperty[0].getMax()
 step   = numberProperty[0].getStep()
 value  = numberProperty[0].getValue()
 ```
+
 Deprecated implementation
+
 ```python
 # set
 numberProperty[0].format = "Some format"
@@ -319,7 +326,9 @@ value  = numberProperty[0].value
 ```
 
 ## Property Switch
+
 New implementation since INDI Core 1.9.x
+
 ```python
 # set
 switchProperty.setRule(PyIndi.ISR_NOFMANY)
@@ -336,7 +345,9 @@ switchProperty.reset()                             # reset all widget switches t
 switchProperty.findOnSwitchIndex()                 # find index of Widget with On state
 switchProperty.findOnSwitch()                      # returns widget with On state
 ```
+
 Deprecated implementation
+
 ```python
 # set
 switchProperty.r = PyIndi.ISR_NOFMANY
@@ -348,7 +359,9 @@ state = switchProperty[0].s
 ```
 
 ## Property Light
+
 New implementation since INDI Core 1.9.x
+
 ```python
 # set
 lightProperty[0].setState(PyIndi.IPS_BUSY)
@@ -359,7 +372,9 @@ lightState = lightProperty[0].getState()
 # auxiliary functions
 stringState = lightProperty[0].getStateAsString() # returns Idle/Ok/Busy/Alert
 ```
+
 Deprecated implementation
+
 ```python
 # set
 lightProperty[0].s = PyIndi.IPS_BUSY
@@ -369,7 +384,9 @@ lightState = lightProperty[0].s
 ```
 
 ## Property Blob
+
 New implementation since INDI Core 1.9.x
+
 ```python
 # set
 blobProperty[0].setFormat("Some format")
@@ -383,7 +400,9 @@ blob    = blobProperty[0].getBlob()
 bloblen = blobProperty[0].getBlobLen()
 size    = blobProperty[0].getSize()
 ```
+
 Deprecated implementation
+
 ```python
 # set
 blobProperty[0].format  = "Some format"
@@ -399,7 +418,9 @@ size    = blobProperty[0].size
 ```
 
 ## BaseClient virual methods
+
 As of INDI Core 2.0.0, there are no features like:
+
 - newText
 - newSwitch
 - newNumber
@@ -409,6 +430,7 @@ As of INDI Core 2.0.0, there are no features like:
 They have been replaced with a single `updateProperty` function to differentiate the behavior between `newProperty` and to provide more memory control in the INDI Core library itself.
 
 It is not required to implement all functions. Please use as needed.
+
 ```python
 class IndiClient(PyIndi.BaseClient):
     def __init__(self):
@@ -448,9 +470,11 @@ class IndiClient(PyIndi.BaseClient):
 ```
 
 The function `newProperty` and `updateProperty` provide in argument a generic type in which you can read common information for all properties such as name, group, device, type, state. To read values associated with a specific type, e.g. `Switch`, you need to perform cast.
+
 ```python
 switchProperty = PyIndi.PropertySwitch(genericProperty)
 ```
+
 If successful, the function `switchProperty.isValid()` will return `true`.
 
 A similar mechanism existed before version 2.0.0 for the `newProperty` function.
@@ -464,7 +488,7 @@ class IndiClient(PyIndi.BaseClient):
     def __init__(self):
         super(IndiClient, self).__init__()
 
-    # Call functions in old style 
+    # Call functions in old style
     def updateProperty(self, prop):
         if prop.getType() == PyIndi.INDI_NUMBER:
             self.newNumber(PyIndi.PropertyNumber(prop))
@@ -490,18 +514,16 @@ class IndiClient(PyIndi.BaseClient):
         print(f"new Light {prop.getName()} for device {prop.getDeviceName()}")
 ```
 
-
 ### INDI Version Compatibility
-| Versions         | commit                        | pip     |
-| ---------------- | ----------------------------- | ------- |
-| v2.0.4 - latest  | HEAD                          | `pip3 install 'git+https://github.com/indilib/pyindi-client.git'` |
-| v2.0.0 - v2.0.3  | indilib/pyindi-client@674706f | `pip3 install 'git+https://github.com/indilib/pyindi-client.git@674706f#egg=pyindi-client'` |
-| v1.9.9           | indilib/pyindi-client@ce808b7 | `pip3 install 'git+https://github.com/indilib/pyindi-client.git@ce808b7#egg=pyindi-client'` |
-| v1.9.8           | indilib/pyindi-client@ffd939b | `pip3 install 'git+https://github.com/indilib/pyindi-client.git@ffd939b#egg=pyindi-client'` |
 
+| Versions        | commit                        | pip                                                                                         |
+| --------------- | ----------------------------- | ------------------------------------------------------------------------------------------- |
+| v2.0.4 - latest | HEAD                          | `pip3 install 'git+https://github.com/indilib/pyindi-client.git'`                           |
+| v2.0.0 - v2.0.3 | indilib/pyindi-client@674706f | `pip3 install 'git+https://github.com/indilib/pyindi-client.git@674706f#egg=pyindi-client'` |
+| v1.9.9          | indilib/pyindi-client@ce808b7 | `pip3 install 'git+https://github.com/indilib/pyindi-client.git@ce808b7#egg=pyindi-client'` |
+| v1.9.8          | indilib/pyindi-client@ffd939b | `pip3 install 'git+https://github.com/indilib/pyindi-client.git@ffd939b#egg=pyindi-client'` |
 
-Notes
------
+## Notes
 
 See the
 [examples](https://github.com/indilib/pyindi-client/tree/master/examples)
@@ -514,10 +536,9 @@ for an insight of what is wrapped and how.
 For documentation on the methods of INDI Client API, refer to the [INDI
 C++ API documentation](http://www.indilib.org/api/index.html).
 
-License
-=======
+# License
 
 **pyindi-client** code is free software under the [GNU General Public
 License v3 or later (GPLv3+)](http://www.gnu.org/licenses/gpl.html).
 
-------------------------------------------------------------------------
+---
