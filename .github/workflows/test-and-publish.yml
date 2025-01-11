@@ -43,7 +43,32 @@ jobs:
           CIBW_BEFORE_ALL_LINUX: |
             set -e
             yum install -y epel-release || { echo "Failed to add EPEL"; exit 1; }
-            yum install -y swig cfitsio-devel libnova-devel cmake gcc-c++ make || { echo "Failed to install dependencies"; exit 1; }
+            yum install -y \
+              git \
+              cmake \
+              gcc-c++ \
+              make \
+              libev-devel \
+              gpsd-devel \
+              gsl-devel \
+              LibRaw-devel \
+              libusb-devel \
+              zlib-devel \
+              libftdi-devel \
+              libjpeg-turbo-devel \
+              krb5-devel \
+              libnova-devel \
+              libtiff-devel \
+              fftw-devel \
+              rtl-sdr-devel \
+              cfitsio-devel \
+              libgphoto2-devel \
+              libusb1-devel \
+              libdc1394-devel \
+              boost-regex \
+              libcurl-devel \
+              libtheora-devel \
+              swig || { echo "Failed to install dependencies"; exit 1; }
             # Build INDI from source
             curl -L https://github.com/indilib/indi/archive/v2.1.1.tar.gz | tar xz
             cd indi-2.1.1
