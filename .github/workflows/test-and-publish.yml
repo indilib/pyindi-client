@@ -7,6 +7,7 @@ on:
     branches: [main, master]
   release:
     types: [published]
+  workflow_dispatch: # Allow manual triggering
 
 jobs:
   test:
@@ -26,7 +27,6 @@ jobs:
     name: Build wheels on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     needs: test
-    if: github.event_name == 'release' && github.event.action == 'published'
     environment: pypi
     strategy:
       matrix:
@@ -42,9 +42,16 @@ jobs:
           CIBW_ARCHS_LINUX: "x86_64 aarch64"
           CIBW_BEFORE_ALL_LINUX: |
             set -e
-            add-apt-repository -y ppa:mutlaqja/ppa || { echo "Failed to add PPA"; exit 1; }
-            apt-get update || { echo "Failed to update package lists"; exit 1; }
-            apt-get install -y swig libindi-dev libnova-dev libcfitsio-dev || { echo "Failed to install dependencies"; exit 1; }
+            yum install -y epel-release || { echo "Failed to add EPEL"; exit 1; }
+            yum install -y swig cfitsio-devel libnova-devel cmake gcc-c++ make || { echo "Failed to install dependencies"; exit 1; }
+            # Build INDI from source
+            curl -L https://github.com/indilib/indi/archive/v2.1.1.tar.gz | tar xz
+            cd indi-2.1.1
+            mkdir build && cd build
+            cmake -DCMAKE_INSTALL_PREFIX=/usr ..
+            make -j4
+            make install
+            cd ../..
 
       - uses: actions/upload-artifact@v3
         with:
