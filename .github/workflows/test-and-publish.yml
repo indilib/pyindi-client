@@ -83,7 +83,6 @@ jobs:
             mkdir build && cd build
             cmake -DCMAKE_INSTALL_PREFIX=/usr \
                   -DCMAKE_BUILD_TYPE=Release \
-                  -DINDI_BUILD_CLIENT=OFF \
                   -DINDI_BUILD_SERVER=OFF \
                   -DINDI_BUILD_DRIVERS=OFF \..
             make -j4
