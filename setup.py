@@ -51,12 +51,25 @@ if libindipath == "":
     print("Exiting")
     exit(1)
 
+# Use same search paths for library directories
+library_dirs = ["/usr/lib/" + march if march else "/usr/lib"]
+library_dirs.extend([
+    "/usr/lib",
+    "/usr/lib64",
+    "/lib",
+    "/lib64",
+    "/usr/local/lib/" + march if march else "/usr/local/lib",
+    "/usr/local/lib",
+])
+
 pyindi_module = Extension(
     "_PyIndi",
     sources=["indiclientpython.i"],
     language="c++",
     extra_compile_args=["-std=c++11"],
     extra_objects=[join(libindipath, "libindiclient.a")],
+    libraries=['nova', 'cfitsio', 'z'],
+    library_dirs=library_dirs,  # Use architecture-aware library paths
 )
 
 # Be sure to run build_ext in order to run swig prior to install/build
@@ -73,7 +86,6 @@ class CustomInstall(install):
         install.run(self)
 
 
-# readme = open(join(root_dir, 'README.rst'))
 descr = """
 An INDI Client Python API, auto-generated from the official C++ API using SWIG.
 
@@ -92,9 +104,9 @@ Dependencies
 
 For the above installation to work, you need to have installed from your distribution repositories the following packages: Python setup tools, Python development files, libindi development files and swig.
 - On an Ubuntu-like distribution, you may use:
-apt-get install python-setuptools python-dev libindi-dev swig
+apt-get install python-setuptools python-dev libindi-dev swig libnova-dev libcfitsio-dev
 - On a Fedora-like distribution, you may use (dnf or yum):
-dnf install python-setuptools python-devel libindi-devel swig
+dnf install python-setuptools python-devel libindi-devel swig libnova-devel cfitsio-devel
 """
 setup(
     version=VERSION,
@@ -104,7 +116,6 @@ setup(
     url="https://github.com/indilib/pyindi-client",
     license="GNU General Public License v3 or later (GPLv3+)",
     description="""Third party Python API for INDI client""",
-    # long_description=readme.read(),
     long_description=descr,
     keywords=["libindi client wrapper"],
     cmdclass={"build": CustomBuild, "install": CustomInstall},
@@ -123,4 +134,3 @@ setup(
         "Topic :: Scientific/Engineering :: Astronomy",
     ],
 )
-# readme.close()
