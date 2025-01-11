@@ -41,6 +41,7 @@ jobs:
         env:
           CIBW_BUILD: "cp39-* cp310-* cp311-* cp312-*"
           CIBW_ARCHS_LINUX: "${{ matrix.arch }}"
+          CIBW_SKIP: "*-musllinux_*"
           CIBW_MANYLINUX_X86_64_IMAGE: quay.io/pypa/manylinux2014_x86_64:latest
           CIBW_MANYLINUX_AARCH64_IMAGE: quay.io/pypa/manylinux2014_aarch64:latest
           CIBW_BEFORE_ALL_LINUX: |
