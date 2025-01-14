@@ -6,3 +6,4 @@ PyIndi.py
 build/
 indiclientpython_wrap.cpp
 indiclientpython_wrap.h
+dist

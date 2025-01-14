@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta" 
+
+[project]
+name = "pyindi-client"
+version = "2.1.2"
+authors = [
+  { name="geehalel", email="geehalel@gmail.com" },
+]
+description = "Third party Python API for INDI client"
+readme = "README.md"
+requires-python = ">=3.7"
+classifiers = [
+     'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
+     'Natural Language :: English',
+     'Programming Language :: Python',
+     'Operating System :: Unix',
+     'Intended Audience :: Science/Research',
+     'Topic :: Scientific/Engineering :: Astronomy',
+]
+dependencies = [
+    "requests",
+    "bottle",
+    "dbus",
+]
+
+
+[project.urls]
+"Homepage" = "https://github.com/indilib/pyindi-client"
+"Bug Tracker" = "https://github.com/indilib/pyindi-client/issues"
