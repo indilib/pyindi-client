@@ -6,7 +6,8 @@ ENV DEBIAN_FRONTEND="noninteractive" TZ=Etc/UTC
 
 ### install dependencies
 RUN apt-get update -y && apt-get upgrade -y
-RUN apt-get install -y build-essential software-properties-common libcfitsio-dev libnova-dev
+RUN apt-get install -y build-essential software-properties-common libcfitsio-dev libnova-dev \
+    pkg-config cmake libdbus-1-dev
 
 ### install python and swig
 RUN apt-get install -y python3-dev python3-pip python3-venv virtualenv swig
