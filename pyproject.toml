@@ -25,6 +25,8 @@ dependencies = [
     "dbus-python",
 ]
 
+[tool.setuptools]
+packages = ["PyIndi"]
 
 [project.urls]
 "Homepage" = "https://github.com/indilib/pyindi-client"
