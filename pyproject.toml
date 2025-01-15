@@ -1,6 +1,20 @@
 [build-system]
-requires = ["setuptools>=61.0"]
-build-backend = "setuptools.build_meta" 
+requires = [
+    "setuptools>=61.0",
+    "wheel",
+]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+py-modules = ["PyIndi"]
+
+[[tool.setuptools.ext-modules]]
+name = "_PyIndi"
+sources = ["indiclientpython.i"]
+include-dirs = ["/usr/include", "/usr/include/libindi", "/usr/local/include/libindi"]
+libraries = ["z", "cfitsio", "nova", "indiclient"]
+language = "c++"
+swig-opts = ["-c++", "-threads", "-I/usr/include", "-I/usr/include/libindi", "-I/usr/local/include/libindi"]
 
 [project]
 name = "pyindi-client"
@@ -24,9 +38,6 @@ dependencies = [
     "bottle",
     "dbus-python",
 ]
-
-[tool.setuptools]
-packages = ["PyIndi"]
 
 [project.urls]
 "Homepage" = "https://github.com/indilib/pyindi-client"
