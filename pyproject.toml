@@ -10,7 +10,7 @@ py-modules = ["PyIndi"]
 
 [[tool.setuptools.ext-modules]]
 name = "_PyIndi"
-sources = ["indiclientpython.i"]
+sources = ["PyIndi.py", "indiclientpython.i"]
 include-dirs = ["/usr/include", "/usr/include/libindi", "/usr/local/include/libindi"]
 libraries = ["z", "cfitsio", "nova", "indiclient"]
 language = "c++"
