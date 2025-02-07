@@ -181,3 +181,4 @@ def test_slew(client):
     # slew to M13
     EQUATORIAL_EOD_COORD[0].setValue(16.7175)  # RA_PE
     EQUATORIAL_EOD_COORD[1].setValue(36.4233)  # DEC_PE
+    client.sendNewNumber(EQUATORIAL_EOD_COORD)
