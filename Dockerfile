@@ -37,4 +37,4 @@ COPY tox.ini .
 COPY tests/ tests/
 COPY examples/ examples/
 
-CMD /bin/bash -c "indiserver indi_simulator_ccd indi_simulator_focus indi_simulator_gps indi_simulator_guide indi_simulator_wheel indi_simulator_telescope & /pyindi-client/venv/bin/tox"
+CMD /bin/bash -c "source /pyindi-client/venv/bin/activate & indiserver indi_simulator_ccd indi_simulator_focus indi_simulator_gps indi_simulator_guide indi_simulator_wheel indi_simulator_telescope & /pyindi-client/venv/bin/tox"
