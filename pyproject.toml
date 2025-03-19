@@ -5,17 +5,6 @@ requires = [
 ]
 build-backend = "setuptools.build_meta"
 
-[tool.setuptools]
-py-modules = ["PyIndi"]
-
-[[tool.setuptools.ext-modules]]
-name = "_PyIndi"
-sources = ["PyIndi.py", "indiclientpython.i"]
-include-dirs = ["/usr/include", "/usr/include/libindi", "/usr/local/include/libindi"]
-libraries = ["z", "cfitsio", "nova", "indiclient"]
-language = "c++"
-swig-opts = ["-c++", "-threads", "-I/usr/include", "-I/usr/include/libindi", "-I/usr/local/include/libindi"]
-
 [project]
 name = "pyindi-client"
 version = "2.1.2"
