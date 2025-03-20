@@ -1,28 +1,31 @@
 from setuptools import setup, Extension
-from setuptools.command.build_ext import build_ext
 import os
+import sys
+from configparser import ConfigParser
 
-class CustomBuildExt(build_ext):
-    def run(self):
-        # Run SWIG to generate PyIndi.py and indiclientpython_wrap.cpp
-        self.announce("Running SWIG...", level=2)
-        os.system("swig -python -v -Wall -c++ -threads -I/usr/include -I/usr/include/libindi -I/usr/local/include/libindi -o indiclientpython_wrap.cpp indiclientpython.i")
-        
-        # Continue with the regular build_ext process
-        build_ext.run(self)
+# Load build configurations
+config = ConfigParser()
+config.read("setup.cfg")
 
-# Define the extension module
+include_dirs = config.get("build_ext", "include_dirs").split(":")
+libraries = config.get("build_ext", "libraries").split()
+
+# INDI Client Extension
 ext_module = Extension(
     name="_PyIndi",
-    sources=["indiclientpython_wrap.cpp"],
-    include_dirs=["/usr/include", "/usr/include/libindi", "/usr/local/include/libindi"],
-    libraries=["z", "cfitsio", "nova", "indiclient"],
-    language="c++",
+    sources=["indiclientpython_wrap.cxx"],
+    include_dirs=include_dirs,
+    libraries=libraries,
+    library_dirs=["/usr/lib", "/usr/lib64", "/lib", "/lib64"],
+    extra_compile_args=["-fPIC"],
+    extra_link_args=["-shared"],
 )
 
-# This setup function will be called by setuptools.build_meta
 setup(
+    name="indy-client",
+    version="0.1.0",
+    packages=["."],
+    zip_safe=False,
     ext_modules=[ext_module],
     py_modules=["PyIndi"],
-    cmdclass={"build_ext": CustomBuildExt},
 )

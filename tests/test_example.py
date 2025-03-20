@@ -65,7 +65,7 @@ def test_list_devices(client):
         "Guide Simulator",
         "GPS Simulator",
         "Focuser Simulator",
-        "CCD Simulator"
+        "CCD Simulator",
     ]
     assert set(device_names) == set(expected_device_names)
 
