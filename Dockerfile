@@ -27,6 +27,12 @@ RUN /pyindi-client/venv/bin/pip3 install -U pip setuptools wheel build
 COPY indiclientpython.i .
 COPY pyproject.toml .
 COPY README.md .
+COPY setup.py .
+COPY setup.cfg .
+
+### Generate the SWIG wrapper (including header file)
+RUN swig -python -c++ -threads -I/usr/include -I/usr/include/libindi -I/usr/local/include/libindi indiclientpython.i
+
 RUN /pyindi-client/venv/bin/python3 -m build
 RUN /pyindi-client/venv/bin/pip3 install dist/*.whl
 
