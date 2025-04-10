@@ -30,16 +30,12 @@ jobs:
     strategy:
       matrix:
         arch: [x86_64, aarch64]
-    environment: pypi
 
     steps:
       - uses: actions/checkout@v3
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
-
-      - name: Run SWIG to generate Python bindings
-        run: swig -python -c++ -threads -I/usr/include -I/usr/include/libindi -I/usr/local/include/libindi indiclientpython.i
 
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.16.2
@@ -99,7 +95,6 @@ jobs:
   publish:
     needs: build_wheels
     runs-on: ubuntu-latest
-    environment: pypi
     permissions:
       id-token: write
 

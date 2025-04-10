@@ -30,9 +30,7 @@ COPY README.md .
 COPY setup.py .
 COPY setup.cfg .
 
-### Generate the SWIG wrapper (including header file)
-RUN swig -python -c++ -threads -I/usr/include -I/usr/include/libindi -I/usr/local/include/libindi indiclientpython.i
-
+### Build the package (SWIG will be run automatically)
 RUN /pyindi-client/venv/bin/python3 -m build
 RUN /pyindi-client/venv/bin/pip3 install dist/*.whl
 
