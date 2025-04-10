@@ -38,6 +38,9 @@ jobs:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
 
+      - name: Run SWIG to generate Python bindings
+        run: swig -python -c++ -threads -I/usr/include -I/usr/include/libindi -I/usr/local/include/libindi indiclientpython.i
+
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.16.2
         env:
