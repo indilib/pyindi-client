@@ -30,7 +30,6 @@ jobs:
     strategy:
       matrix:
         arch: [x86_64, aarch64]
-    environment: pypi
 
     steps:
       - uses: actions/checkout@v3
@@ -89,14 +88,14 @@ jobs:
             make install
             cd ../..
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
+          name: wheel-${{ matrix.arch }}
           path: ./wheelhouse/*.whl
 
   publish:
     needs: build_wheels
     runs-on: ubuntu-latest
-    environment: pypi
     permissions:
       id-token: write
 
@@ -115,9 +114,11 @@ jobs:
         run: python -m build --sdist
 
       - name: Download wheels
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
+          pattern: wheel-*
           path: dist
+          merge-multiple: true
 
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
