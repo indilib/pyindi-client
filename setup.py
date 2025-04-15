@@ -130,7 +130,7 @@ ext_module = Extension(
 
 setup(
     name="pyindi-client",
-    version="2.1.2",  # Match version in pyproject.toml
+    version="2.1.3",  # Match version in pyproject.toml
     packages=["."],
     zip_safe=False,
     ext_modules=[ext_module],

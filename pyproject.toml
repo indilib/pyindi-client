@@ -9,7 +9,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pyindi-client"
-version = "2.1.2"
+version = "2.1.3"
 authors = [
   { name="geehalel", email="geehalel@gmail.com" },
 ]
