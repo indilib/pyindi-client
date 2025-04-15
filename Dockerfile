@@ -29,6 +29,7 @@ COPY pyproject.toml .
 COPY README.md .
 COPY setup.py .
 COPY setup.cfg .
+COPY PyIndi/ PyIndi/
 
 ### Build the package (SWIG will be run automatically)
 RUN /pyindi-client/venv/bin/python3 -m build
