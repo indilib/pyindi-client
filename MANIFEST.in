@@ -5,3 +5,4 @@ include pyproject.toml
 include setup.cfg
 recursive-include tests *
 recursive-include examples *
+include PyIndi/PyIndi.py
