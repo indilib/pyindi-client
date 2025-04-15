@@ -140,7 +140,7 @@ class BuildExt(_build_ext):
 
 # INDI Client Extension
 ext_module = Extension(
-    name="_PyIndi",
+    name="PyIndi._PyIndi",
     sources=["indiclientpython_wrap.cxx"],
     include_dirs=include_dirs,
     libraries=libraries,
@@ -151,11 +151,10 @@ ext_module = Extension(
 
 setup(
     name="pyindi-client",
-    version="2.1.4",  # Match version in pyproject.toml
-    packages=["."],
+    version="2.1.5",  # Match version in pyproject.toml
     zip_safe=False,
     ext_modules=[ext_module],
-    py_modules=["PyIndi"],
+    packages=["PyIndi"],
     cmdclass={
         'swig': SwigCommand,
         'build_ext': BuildExt,
