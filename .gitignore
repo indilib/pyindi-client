@@ -6,5 +6,6 @@ PyIndi.py
 build/
 indiclientpython_wrap.cpp
 indiclientpython_wrap.h
+indiclientpython_wrap.cxx
 dist
 venv

@@ -1,6 +1,6 @@
 # pyindi-client ![tests](https://github.com/indilib/pyindi-client/actions/workflows/main.yml/badge.svg)
 
-version : v2.1.2
+version : v2.1.4
 
 An [INDI](http://indilib.org/) Client Python API, auto-generated from
 the official C++ API using [SWIG](http://www.swig.org/).
