@@ -141,10 +141,13 @@ ext_module = Extension(
 
 setup(
     name="pyindi-client",
-    version="2.1.6",  # Match version in pyproject.toml
+    version="2.1.7",  # Match version in pyproject.toml
     zip_safe=False,
     ext_modules=[ext_module],
     packages=["PyIndi"],
+    package_data={
+        "PyIndi": ["PyIndi.py"],
+    },
     cmdclass={
         'swig': SwigCommand,
         'build_ext': BuildExt,
