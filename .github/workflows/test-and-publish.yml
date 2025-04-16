@@ -76,8 +76,8 @@ jobs:
               swig || { echo "Failed to install dependencies"; exit 1; }
 
             # Build INDI from source
-            curl -L https://github.com/indilib/indi/archive/v2.1.1.tar.gz | tar xz
-            cd indi-2.1.1
+            curl -L https://github.com/indilib/indi/archive/v2.1.2.tar.gz | tar xz
+            cd indi-2.1.2
             mkdir build && cd build
             cmake -DCMAKE_INSTALL_PREFIX=/usr \
                   -DCMAKE_BUILD_TYPE=Release \
@@ -109,6 +109,54 @@ jobs:
 
       - name: Install build dependencies
         run: python -m pip install build
+
+      - name: Install system dependencies for sdist build
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            git \
+            cmake \
+            g++ \
+            make \
+            libev-dev \
+            libgps-dev \
+            libgsl-dev \
+            libraw-dev \
+            libusb-1.0-0-dev \
+            zlib1g-dev \
+            libftdi1-dev \
+            libjpeg-turbo8-dev \
+            libkrb5-dev \
+            libnova-dev \
+            libdc1394-dev \
+            libtiff5-dev \
+            libfftw3-dev \
+            librtlsdr-dev \
+            libcfitsio-dev \
+            libgphoto2-dev \
+            libusb-1.0-0-dev \
+            libboost-regex-dev \
+            libcurl4-openssl-dev \
+            libtheora-dev \
+            swig
+
+      - name: Build and install libindi for sdist build
+        run: |
+          set -e
+          # Build INDI from source (matching version used in cibuildwheel)
+          curl -L https://github.com/indilib/indi/archive/v2.1.2.tar.gz | tar xz
+          cd indi-2.1.2
+          mkdir build && cd build
+          cmake -DCMAKE_INSTALL_PREFIX=/usr \
+                -DCMAKE_BUILD_TYPE=Release \
+                -DINDI_BUILD_SERVER=OFF \
+                -DINDI_BUILD_DRIVERS=OFF \
+                .. 
+          make -j$(nproc)
+          sudo make install
+          cd ../..
+          # Ensure linker finds the new library
+          sudo ldconfig
 
       - name: Build source distribution
         run: python -m build --sdist
