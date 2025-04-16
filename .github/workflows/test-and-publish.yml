@@ -158,6 +158,16 @@ jobs:
           # Ensure linker finds the new library
           sudo ldconfig
 
+      - name: Run SWIG manually before sdist build
+        run: |
+          # Ensure PyIndi directory exists
+          mkdir -p PyIndi
+          # Run SWIG using default include paths which should be correct after installing libindi
+          swig -python -v -Wall -c++ -threads -I/usr/include -I/usr/include/libindi -I/usr/local/include/libindi -outdir PyIndi indiclientpython.i
+          # Verify the output file exists
+          ls -l PyIndi/PyIndi.py
+          ls -l indiclientpython_wrap.cxx
+
       - name: Build source distribution
         run: python -m build --sdist
 
