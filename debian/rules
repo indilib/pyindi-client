@@ -4,3 +4,7 @@ export PYBUILD_NAME=PyIndi
 
 %:
 	dh $@ --with python3 --buildsystem pybuild
+
+# Override dh_auto_test to skip tests during build
+override_dh_auto_test:
+        # Tests skipped during package build as they require installed dependencies
