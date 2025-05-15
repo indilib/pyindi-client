@@ -1,3 +1,10 @@
+"""
+This script demonstrates basic usage of the PyIndi library to connect to an INDI server,
+list available devices, and inspect their properties and values.
+
+It defines a custom client class inheriting from PyIndi.BaseClient to handle INDI events
+such as device and property creation/updates/removal, and server connection status.
+"""
 # for logging
 import sys
 import time
@@ -10,59 +17,106 @@ import PyIndi
 # The IndiClient class which inherits from the module PyIndi.BaseClient class
 # Note that all INDI constants are accessible from the module as PyIndi.CONSTANTNAME
 class IndiClient(PyIndi.BaseClient):
+    """
+    Custom INDI client class inheriting from PyIndi.BaseClient.
+
+    This class overrides various callback methods to handle events from the INDI server.
+    """
     def __init__(self):
+        """
+        Initializes a new IndiClient instance and sets up logging.
+        """
         super(IndiClient, self).__init__()
         self.logger = logging.getLogger("IndiClient")
         self.logger.info("creating an instance of IndiClient")
 
     def newDevice(self, d):
-        """Emmited when a new device is created from INDI server."""
+        """
+        Callback method emitted when a new device is created on the INDI server.
+
+        Args:
+            d (PyIndi.Device): The newly created INDI device.
+        """
         self.logger.info(f"new device {d.getDeviceName()}")
 
     def removeDevice(self, d):
-        """Emmited when a device is deleted from INDI server."""
+        """
+        Callback method emitted when a device is deleted from the INDI server.
+
+        Args:
+            d (PyIndi.Device): The INDI device that was removed.
+        """
         self.logger.info(f"remove device {d.getDeviceName()}")
 
     def newProperty(self, p):
-        """Emmited when a new property is created for an INDI driver."""
+        """
+        Callback method emitted when a new property is created for an INDI driver.
+
+        Args:
+            p (PyIndi.Property): The newly created INDI property.
+        """
         self.logger.info(
             f"new property {p.getName()} as {p.getTypeAsString()} for device {p.getDeviceName()}"
         )
 
     def updateProperty(self, p):
-        """Emmited when a new property value arrives from INDI server."""
+        """
+        Callback method emitted when a property value is updated on the INDI server.
+
+        Args:
+            p (PyIndi.Property): The updated INDI property.
+        """
         self.logger.info(
             f"update property {p.getName()} as {p.getTypeAsString()} for device {p.getDeviceName()}"
         )
 
     def removeProperty(self, p):
-        """Emmited when a property is deleted for an INDI driver."""
+        """
+        Callback method emitted when a property is deleted for an INDI driver.
+
+        Args:
+            p (PyIndi.Property): The INDI property that was removed.
+        """
         self.logger.info(
             f"remove property {p.getName()} as {p.getTypeAsString()} for device {p.getDeviceName()}"
         )
 
     def newMessage(self, d, m):
-        """Emmited when a new message arrives from INDI server."""
+        """
+        Callback method emitted when a new message arrives from the INDI server.
+
+        Args:
+            d (PyIndi.Device): The device the message is from.
+            m (PyIndi.Message): The received message.
+        """
         self.logger.info(f"new Message {d.messageQueue(m)}")
 
     def serverConnected(self):
-        """Emmited when the server is connected."""
+        """
+        Callback method emitted when the client successfully connects to the INDI server.
+        """
         self.logger.info(f"Server connected ({self.getHost()}:{self.getPort()})")
 
     def serverDisconnected(self, code):
-        """Emmited when the server gets disconnected."""
+        """
+        Callback method emitted when the client disconnects from the INDI server.
+
+        Args:
+            code (int): The exit code of the disconnected server.
+        """
         self.logger.info(
             f"Server disconnected (exit code = {code},{self.getHost()}:{self.getPort()})"
         )
 
 
+# Configure basic logging
 logging.basicConfig(format="%(asctime)s %(message)s", level=logging.INFO)
 
 # Create an instance of the IndiClient class and initialize its host/port members
 indiClient = IndiClient()
 indiClient.setServer("localhost", 7624)
 
-# Connect to server
+# Connect to the INDI server
 print("Connecting and waiting 1 sec")
 if not indiClient.connectServer():
     print(
@@ -71,7 +125,7 @@ if not indiClient.connectServer():
     print("  indiserver indi_simulator_telescope indi_simulator_ccd")
     sys.exit(1)
 
-# Waiting for discover devices
+# Waiting for devices to be discovered by the client
 time.sleep(1)
 
 # Print list of devices. The list is obtained from the wrapper function getDevices as indiClient is an instance
@@ -82,15 +136,18 @@ deviceList = indiClient.getDevices()
 for device in deviceList:
     print(f"   > {device.getDeviceName()}")
 
-# Print all properties and their associated values.
+# Print all properties and their associated values for each discovered device.
 print("List of Device Properties")
 for device in deviceList:
     print(f"-- {device.getDeviceName()}")
+    # Get the list of properties for the current device
     genericPropertyList = device.getProperties()
 
+    # Iterate through each property
     for genericProperty in genericPropertyList:
         print(f"   > {genericProperty.getName()} {genericProperty.getTypeAsString()}")
 
+        # Check the property type and iterate through its elements (widgets)
         if genericProperty.getType() == PyIndi.INDI_TEXT:
             for widget in PyIndi.PropertyText(genericProperty):
                 print(
