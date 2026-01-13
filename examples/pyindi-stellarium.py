@@ -6,6 +6,7 @@ to control a telescope connected to an INDI server.
 It implements the Stellarium Telescope Control plugin protocol for communication
 with Stellarium clients and uses the PyIndi library to interact with the INDI server.
 """
+
 import signal, os, sys, logging, time, calendar, math, traceback
 import socket, select
 
@@ -47,6 +48,7 @@ killed = False
 
 
 # --- Helper Functions for Byte Conversion ---
+
 
 def to_be(n, size):
     """
@@ -128,6 +130,7 @@ class StelClient:
     Manages the socket connection, read/write buffers, and message queue
     for communication with a single Stellarium instance.
     """
+
     def __init__(self, sock, clientaddress):
         """
         Initializes a new StelClient instance.
@@ -313,6 +316,7 @@ class IndiClient(PyIndi.BaseClient):
     specified telescope device. Updates global variables with the telescope's
     connection status, RA, and DEC.
     """
+
     def __init__(self, telescope):
         """
         Initializes a new IndiClient instance.
@@ -485,7 +489,7 @@ stelSocket.listen(5)
 stelSocket.setblocking(0)
 # Allow the socket to reuse the address
 stelSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-status = 0 # Initial status for Stellarium clients
+status = 0  # Initial status for Stellarium clients
 
 # --- Main Loop ---
 try:

@@ -6,6 +6,7 @@ It defines a simple client class and connects to a server running on localhost:7
 A real application would typically include more logic to interact with INDI devices
 and handle events after connecting.
 """
+
 import PyIndi
 
 
@@ -16,6 +17,7 @@ class IndiClient(PyIndi.BaseClient):
     This class does not override any callback methods, serving only as a basic
     client instance for connection.
     """
+
     def __init__(self):
         """
         Initializes a new minimal IndiClient instance.

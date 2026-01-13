@@ -5,6 +5,7 @@ and Celestron mounts) through an INDI server.
 
 It can expose the SynScan interface either as a virtual serial port or a TCP server.
 """
+
 #!/usr/bin/python
 # -*- coding: utf8 -*-
 
@@ -49,6 +50,7 @@ class IndiClient(PyIndi.BaseClient):
 
     Handles connection status and messages from the INDI server.
     """
+
     global logger
 
     def __init__(self):
@@ -240,9 +242,9 @@ def process_command(buf, indiclient, logger):
             if sys.version_info >= (3,):
                 rahex = bytes(rahex, "ascii")
                 dechex = bytes(dechex, "ascii")
-            if cmd == ord("e"): # 32-bit coordinates
+            if cmd == ord("e"):  # 32-bit coordinates
                 reply += rahex + b"," + dechex + b"#"
-            else: # 24-bit coordinates
+            else:  # 24-bit coordinates
                 reply += rahex[0:4] + b"," + dechex[0:4] + b"#"
         # Get time (UTC)
         elif cmd == ord("h"):
@@ -260,7 +262,7 @@ def process_command(buf, indiclient, logger):
             # Adjust for the offset (though SynScan protocol might expect local time)
             utc = utc + datetime.timedelta(0, 0, 0, 0, 0, offset)
             if offset < 0:
-                offset = 256 - offset # SynScan uses unsigned byte for offset
+                offset = 256 - offset  # SynScan uses unsigned byte for offset
             # Pack time components into SynScan format
             reply += (
                 struct.pack(
@@ -270,9 +272,9 @@ def process_command(buf, indiclient, logger):
                     utc.second,
                     utc.month,
                     utc.day,
-                    utc.year - 2000, # SynScan uses year since 2000
+                    utc.year - 2000,  # SynScan uses year since 2000
                     offset,
-                    0x00, # DST flag (not used here)
+                    0x00,  # DST flag (not used here)
                 )
                 + b"#"
             )
@@ -280,7 +282,7 @@ def process_command(buf, indiclient, logger):
         elif cmd == ord("m"):
             p = getTextWithRetry("MOUNTINFORMATION")
             if p is None:
-                m = b"!" # Error indicator
+                m = b"!"  # Error indicator
             else:
                 # Map INDI mount names to SynScan model bytes
                 skywatcher_models = {
@@ -295,7 +297,7 @@ def process_command(buf, indiclient, logger):
                 if p[0].getText() in skywatcher_models:
                     m = skywatcher_models[p[0].getText()]
                 else:
-                    m = b"\x00" # Default to EQ6 if model is unknown
+                    m = b"\x00"  # Default to EQ6 if model is unknown
             reply += m + b"#"
         # Get Location (Geographic Coordinates)
         elif cmd == ord("w"):
@@ -305,8 +307,8 @@ def process_command(buf, indiclient, logger):
                 continue
             latdeg = p[0].getValue()
             longdeg = p[1].getValue()
-            elev = p[2].getValue() # Elevation is not used in SynScan location reply
-            latd = b"\x00" # Latitude direction (0 for North, 1 for South)
+            elev = p[2].getValue()  # Elevation is not used in SynScan location reply
+            latd = b"\x00"  # Latitude direction (0 for North, 1 for South)
             if latdeg < 0.0:
                 latd = b"\x01"
                 latdeg = -(latdeg)
@@ -314,7 +316,7 @@ def process_command(buf, indiclient, logger):
             latfrac, lata = math.modf(latdeg)
             latfrac, latb = math.modf(latfrac * 60)
             latfrac, latc = math.modf(latfrac * 60)
-            longh = b"\x00" # Longitude direction (0 for East, 1 for West)
+            longh = b"\x00"  # Longitude direction (0 for East, 1 for West)
             if longdeg > 180.0:
                 longdeg -= 360.0
             if longdeg < 0.0:
@@ -341,7 +343,7 @@ def process_command(buf, indiclient, logger):
             # reply += b"\x03\x03#" # Example version bytes
             # nex skywatcher ?
             # reply += b"042508#"
-            reply += b"032507" # Common version string
+            reply += b"032507"  # Common version string
             # celestron / old skywatcher ?
             # reply += b"\x04\x25\x07"
             # reply += b"\x04\x25\x07#" normally with a # but this corrupts the indi-synscan driver
@@ -350,9 +352,9 @@ def process_command(buf, indiclient, logger):
             # Unpack time components from the command buffer
             [h, m, s, mth, d, y, offset, dst] = buf[i : i + 8]
             i += 8
-            y += 2000 # SynScan uses year since 2000
+            y += 2000  # SynScan uses year since 2000
             if offset < 0:
-                offset = 256 - offset # Convert unsigned byte back to signed
+                offset = 256 - offset  # Convert unsigned byte back to signed
             # Create datetime object and adjust for offset
             lt = datetime.datetime(y, mth, d, h, m, s, 0, None)
             utc = lt - datetime.timedelta(0, 0, 0, 0, 0, offset)
@@ -375,10 +377,12 @@ def process_command(buf, indiclient, logger):
             # Convert degrees, minutes, seconds back to degrees
             lat = data[0] + (data[1] / 60) + (data[2] / 3600)
             if data[3] == 1:
-                lat = -lat # Apply South direction
+                lat = -lat  # Apply South direction
             long = data[4] + (data[5] / 60) + (data[6] / 3600)
             if data[7] == 1:
-                long = 360.0 - long # Apply West direction (SynScan uses 0-360 for longitude)
+                long = (
+                    360.0 - long
+                )  # Apply West direction (SynScan uses 0-360 for longitude)
             # Get the GEOGRAPHIC_COORD property and set its values
             p = getNumberWithRetry("GEOGRAPHIC_COORD")
             if p is None:
@@ -391,16 +395,18 @@ def process_command(buf, indiclient, logger):
             reply += b"#"
         # Goto/Sync command
         elif cmd in [ord("r"), ord("R"), ord("s"), ord("S")]:
-            ingoto = cmd in [ord("r"), ord("R")] # Check if it's a goto command
-            if cmd in [ord("r"), ord("s")]: # 32-bit coordinates
+            ingoto = cmd in [ord("r"), ord("R")]  # Check if it's a goto command
+            if cmd in [ord("r"), ord("s")]:  # 32-bit coordinates
                 rahour = (int(buf[i : i + 8], 16) * 24.0) / (2**32)
                 decdeg = (int(buf[i + 9 : i + 17], 16) * 360.0) / (2**32)
                 i += 17
-            else: # 24-bit coordinates
+            else:  # 24-bit coordinates
                 rahour = (int(buf[i : i + 4], 16) * 24.0) / (2**16)
                 decdeg = (int(buf[i + 5 : i + 9], 16) * 360.0) / (2**16)
                 i += 9
-            if decdeg >= 270.0:  # Adjust declination for values > 270 (SynScan uses 0-360)
+            if (
+                decdeg >= 270.0
+            ):  # Adjust declination for values > 270 (SynScan uses 0-360)
                 decdeg = decdeg - 360.0
             # Get the target coordinate property and set the new RA and DEC values
             p = getNumberWithRetry("EQUATORIAL_EOD_COORD")
@@ -436,9 +442,9 @@ def process_command(buf, indiclient, logger):
                 reply += reply_error
                 continue
             if p.getState() == PyIndi.IPS_BUSY:
-                reply += b"1#" # Return 1 if busy (in goto)
+                reply += b"1#"  # Return 1 if busy (in goto)
             else:
-                reply += b"0#" # Return 0 if not busy
+                reply += b"0#"  # Return 0 if not busy
         # Abort Goto command
         elif cmd == ord("M"):
             # Check if the mount is currently busy
@@ -461,10 +467,12 @@ def process_command(buf, indiclient, logger):
             # Unpack motion data from the command buffer
             data = buf[i : i + 7]
             i += 7
-            if data[0] != 2:  # Check for supported rate mode (variable rate not supported)
+            if (
+                data[0] != 2
+            ):  # Check for supported rate mode (variable rate not supported)
                 reply += reply_error
                 continue
-            if data[1] == 16: # Check if it's a West/East motion command
+            if data[1] == 16:  # Check if it's a West/East motion command
                 pmotionname = "TELESCOPE_MOTION_WE"
             else:  # Should be 17 for North/South motion
                 pmotionname = "TELESCOPE_MOTION_NS"
@@ -473,14 +481,16 @@ def process_command(buf, indiclient, logger):
             if pmotion is None:
                 reply += reply_error
                 continue
-            rate = data[3] # Get the slew rate from the command
+            rate = data[3]  # Get the slew rate from the command
             if rate == 0:  # Stop motion
                 pmotion.reset()
                 indiclient.sendNewProperty(pmotion)
-            else: # Start motion
+            else:  # Start motion
                 # Get the TELESCOPE_SLEW_RATE switch property to set the desired speed
                 prate = getSwitchWithRetry("TELESCOPE_SLEW_RATE")
-                if prate is None or len(prate) < 1:  # Check if slew rate property exists
+                if (
+                    prate is None or len(prate) < 1
+                ):  # Check if slew rate property exists
                     reply += reply_error
                     continue
                 # Map SynScan rate values to INDI slew rate switches
@@ -510,7 +520,7 @@ def process_command(buf, indiclient, logger):
                 prateset.setState(PyIndi.ISS_ON)
                 # Send the updated slew rate property to the INDI server
                 indiclient.sendNewProperty(prate)
-                movedir = data[2] # Get the move direction from the command
+                movedir = data[2]  # Get the move direction from the command
                 if movedir == 36:  # Positive move (West for RA, North for DEC)
                     pmotion[0].setState(PyIndi.ISS_ON)
                     pmotion[1].setState(PyIndi.ISS_OFF)
@@ -528,9 +538,9 @@ def process_command(buf, indiclient, logger):
                 reply += reply_error
                 continue
             if p[0].getState() == PyIndi.ISS_ON:  # Check if the pier side is East
-                reply += b"E#" # Return 'E' for East
+                reply += b"E#"  # Return 'E' for East
             else:
-                reply += b"W#" # Return 'W' for West
+                reply += b"W#"  # Return 'W' for West
         # Get Tracking command
         elif cmd == ord("t"):
             # Get the TELESCOPE_TRACK_RATE switch property
@@ -538,10 +548,10 @@ def process_command(buf, indiclient, logger):
             if p is None:
                 reply += reply_error
                 continue
-            mode = b"0" # Default to unknown mode
+            mode = b"0"  # Default to unknown mode
             # Check if any tracking rate is enabled
             if any(p[n].getState() == PyIndi.ISS_ON for n in range(4)):
-                mode = b"2" # Indicate tracking is on (SynScan mode 2 or 3)
+                mode = b"2"  # Indicate tracking is on (SynScan mode 2 or 3)
             reply += mode + b"#"
         # Set Tracking command
         elif cmd == ord("T"):
@@ -557,16 +567,18 @@ def process_command(buf, indiclient, logger):
                 # If not already in EQ tracking, set the EQ tracking switch to ON
                 if p[0].getState() == PyIndi.ISS_OFF:
                     p.reset()
-                    p[0].setState(ON) # Assuming ON is defined elsewhere or using PyIndi.ISS_ON
+                    p[0].setState(
+                        ON
+                    )  # Assuming ON is defined elsewhere or using PyIndi.ISS_ON
                     indiclient.sendNewProperty(p)
-            else: # Other modes (like Alt/Az or Off)
+            else:  # Other modes (like Alt/Az or Off)
                 # If any tracking is on, turn off all tracking rates
                 if any(p[n].getState() == PyIndi.ISS_ON for n in range(4)):
                     p.reset()
                     indiclient.sendNewProperty(p)
             reply += b"#"
         else:  # Unknown command
-            reply += reply_error # Return error for unknown commands
+            reply += reply_error  # Return error for unknown commands
             i += 1
     return reply
 
@@ -582,7 +594,7 @@ indiclient = IndiClient()
 indiclient.setServer(INDI_SERVER_HOST, INDI_SERVER_PORT)
 # Tell the INDI client to watch the specified telescope device
 indiclient.watchDevice(TELESCOPE_DEVICE)
-device = None # Variable to hold the telescope device object
+device = None  # Variable to hold the telescope device object
 
 # Connect to the INDI server and get the telescope device.
 # This section waits until the server is connected and the device is available.
@@ -658,7 +670,7 @@ if USE_SERIAL:
 # If TCP interface is enabled, create a TCP server socket.
 if USE_TCP:
     # Create a TCP/IP socket
-    server_name = "0.0.0.0" # Listen on all available interfaces
+    server_name = "0.0.0.0"  # Listen on all available interfaces
     server_port = TCP_LISTEN_PORT
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_address = (server_name, server_port)
@@ -714,7 +726,7 @@ try:
                 # (probably socat which is maintaining the link)
                 # sys.stdout.write("waiting for a connection\n") # Debug print
                 connection, client_address = sock.accept()
-                chars = "" # Variable to hold received data
+                chars = ""  # Variable to hold received data
                 try:
                     logger.info(
                         "Client connected: {0}, {1}".format(
@@ -725,7 +737,7 @@ try:
                     while True:
                         chars = connection.recv(1024)
                         if len(chars) == 0:
-                            break # Break if no data is received (client disconnected)
+                            break  # Break if no data is received (client disconnected)
                         if sys.version_info < (3,):
                             chars = bytearray(chars)
                         logger.info("read: " + repr(chars))

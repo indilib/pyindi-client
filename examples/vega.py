@@ -4,6 +4,7 @@ and a CCD camera simulator. It connects to an INDI server, points the telescope
 to the star Vega, takes exposures using the CCD simulator, and processes the
 received image data (BLOBs).
 """
+
 import PyIndi
 import time
 import sys
@@ -16,6 +17,7 @@ class IndiClient(PyIndi.BaseClient):
 
     This class overrides the updateProperty callback to handle new BLOB data.
     """
+
     def __init__(self):
         """
         Initializes a new IndiClient instance.
@@ -170,7 +172,7 @@ exposures = [1.0, 5.0]
 
 # Use a threading.Event to signal when a new BLOB (image) is received
 blobEvent = threading.Event()
-blobEvent.clear() # Clear the event initially
+blobEvent.clear()  # Clear the event initially
 
 # Start the first exposure
 i = 0
@@ -184,7 +186,7 @@ while i < len(exposures):
     # If there are more exposures in the list, start the next one immediately
     if i + 1 < len(exposures):
         ccd_exposure[0].setValue(exposures[i + 1])
-        blobEvent.clear() # Clear the event for the next exposure
+        blobEvent.clear()  # Clear the event for the next exposure
         indiclient.sendNewProperty(ccd_exposure)
     # Process the received BLOB data
     for blob in ccd_ccd1:

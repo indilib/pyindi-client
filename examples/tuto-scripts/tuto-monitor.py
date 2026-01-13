@@ -5,6 +5,7 @@ and monitor properties of a specific device using the PyIndi library.
 It shows how to use the `watchDevice` method to filter events and how to handle
 property updates, specifically focusing on monitoring Number properties.
 """
+
 import PyIndi
 import time
 
@@ -16,6 +17,7 @@ class IndiClient(PyIndi.BaseClient):
     This class overrides callback methods to monitor specific device and property
     events from the INDI server.
     """
+
     def __init__(self):
         """
         Initializes a new IndiClient instance.

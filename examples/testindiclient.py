@@ -5,6 +5,7 @@ list available devices, and inspect their properties and values.
 It defines a custom client class inheriting from PyIndi.BaseClient to handle INDI events
 such as device and property creation/updates/removal, and server connection status.
 """
+
 # for logging
 import sys
 import time
@@ -22,6 +23,7 @@ class IndiClient(PyIndi.BaseClient):
 
     This class overrides various callback methods to handle events from the INDI server.
     """
+
     def __init__(self):
         """
         Initializes a new IndiClient instance and sets up logging.
