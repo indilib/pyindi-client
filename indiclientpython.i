@@ -1,5 +1,6 @@
 %module(directors="1") PyIndi
 %{
+#include <indiversion.h>
 #include <indibase.h>
 #include <indiapi.h>
 #include <baseclient.h>
@@ -42,6 +43,7 @@
 %template(BaseDeviceVector) std::vector<INDI::BaseDevice *>;
 %template(PropertyVector) std::vector<INDI::Property *>;
 
+%include <indiversion.h>
 %include <indimacros.h>
 %include <indibasetypes.h>
 %include <indibase.h>

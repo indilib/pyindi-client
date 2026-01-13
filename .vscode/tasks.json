@@ -14,6 +14,54 @@
                 "panel": "new"
             },
             "problemMatcher": []
+        },
+        {
+            "label": "Check INDI Server",
+            "type": "shell",
+            "command": "bash -c \"timeout 2 nc -z localhost 7624 2>/dev/null && echo '✓ INDI Server is running on localhost:7624' || echo '⚠ Warning: INDI Server may not be running. Start with: indiserver indi_simulator_telescope indi_simulator_ccd'\"",
+            "presentation": {
+                "reveal": "silent",
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Start INDI Simulator",
+            "type": "shell",
+            "command": "indiserver indi_simulator_telescope indi_simulator_ccd",
+            "isBackground": true,
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "focus": false
+            },
+            "problemMatcher": {
+                "pattern": {
+                    "regexp": "^(.*)$",
+                    "file": 1
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": ".*",
+                    "endsPattern": ".*"
+                }
+            }
+        },
+        {
+            "label": "Run Tests",
+            "type": "shell",
+            "command": "python -m pytest tests/ -v",
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            },
+            "problemMatcher": []
         }
     ]
 }

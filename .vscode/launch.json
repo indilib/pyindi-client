@@ -8,6 +8,120 @@
             "program": "${file}",
             "console": "integratedTerminal",
             "justMyCode": true
+        },
+        {
+            "name": "PyIndi: Test INDI Client",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/examples/testindiclient.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "purpose": ["debug-test"],
+            "presentation": {
+                "group": "1_pyindi_tests"
+            },
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            }
+        },
+        {
+            "name": "PyIndi: Test INDI Client (with build)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/examples/testindiclient.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "preLaunchTask": "Build Project",
+            "presentation": {
+                "group": "1_pyindi_tests"
+            },
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            }
+        },
+        {
+            "name": "PyIndi: Tutorial - Minimal",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/examples/tuto-scripts/tuto-minimal.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "presentation": {
+                "group": "2_tutorials"
+            },
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            }
+        },
+        {
+            "name": "PyIndi: Tutorial - Monitor",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/examples/tuto-scripts/tuto-monitor.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "presentation": {
+                "group": "2_tutorials"
+            },
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            }
+        },
+        {
+            "name": "PyIndi: Tutorial - CCD",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/examples/tuto-scripts/tuto-ccd.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "presentation": {
+                "group": "2_tutorials"
+            },
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            }
+        },
+        {
+            "name": "PyIndi: Vega Example",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/examples/vega.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "presentation": {
+                "group": "3_examples"
+            },
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            }
+        },
+        {
+            "name": "PyIndi: Stellarium Example",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/examples/pyindi-stellarium.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "presentation": {
+                "group": "3_examples"
+            },
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            }
+        },
+        {
+            "name": "PyIndi: SynScan Example",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/examples/pyindi-synscan.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "presentation": {
+                "group": "3_examples"
+            },
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            }
         }
     ]
 }
