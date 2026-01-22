@@ -3,7 +3,6 @@ import logging
 import pytest
 import time
 
-
 logging.basicConfig(level=logging.INFO)
 logger = logging
 
