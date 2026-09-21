@@ -59,6 +59,13 @@
 %ignore INDI::PropertyView::vapply;
 %ignore INDI::PropertyView::vdefine;
 
+namespace INDI
+{
+template <typename> struct WidgetView;
+%ignore WidgetView::WidgetView(const WidgetView &);
+%ignore WidgetView::WidgetView(WidgetView &&);
+}
+
 %include <indipropertyview.h>
 
 %exception {
