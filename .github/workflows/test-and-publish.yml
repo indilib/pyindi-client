@@ -88,6 +88,12 @@ jobs:
             make install
             cd ../..
 
+      - name: Verify generated Python module is packaged
+        run: |
+          for wheel in wheelhouse/*.whl; do
+            unzip -l "$wheel" | grep -q "PyIndi/PyIndi.py"
+          done
+
       - uses: actions/upload-artifact@v4
         with:
           name: wheel-${{ matrix.arch }}
