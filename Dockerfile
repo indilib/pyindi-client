@@ -10,7 +10,7 @@ RUN apt-get install -y build-essential software-properties-common libcfitsio-dev
     pkg-config cmake libdbus-1-dev libglib2.0-dev
 
 ### install python and swig
-RUN apt-get install -y python3-dev python3-pip python3-venv virtualenv swig
+RUN apt-get install -y python3-dev python3-pip python3-venv virtualenv
 
 ### install indi from PPA
 RUN add-apt-repository -y ppa:mutlaqja/ppa
