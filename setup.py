@@ -4,6 +4,7 @@ import sys
 import subprocess
 from configparser import ConfigParser
 from setuptools.command.build_ext import build_ext as _build_ext
+from setuptools.command.build_py import build_py as _build_py
 
 # Default values in case setup.cfg is not available
 DEFAULT_INCLUDE_DIRS = [
@@ -160,6 +161,15 @@ class BuildExt(_build_ext):
             raise
 
 
+# SWIG generates both the extension wrapper and the Python-facing module.  The
+# normal setuptools build order runs build_py before build_ext, so generating
+# PyIndi.py only from build_ext leaves it out of the wheel on a clean checkout.
+class BuildPy(_build_py):
+    def run(self):
+        self.run_command("swig")
+        _build_py.run(self)
+
+
 # INDI Client Extension
 ext_module = Extension(
     name="PyIndi._PyIndi",
@@ -172,8 +182,6 @@ ext_module = Extension(
 )
 
 setup(
-    name="pyindi-client",
-    version="2.2.0",  # Match version in pyproject.toml
     zip_safe=False,
     ext_modules=[ext_module],
     packages=["PyIndi"],
@@ -182,6 +190,7 @@ setup(
     },
     cmdclass={
         "swig": SwigCommand,
+        "build_py": BuildPy,
         "build_ext": BuildExt,
     },
 )
